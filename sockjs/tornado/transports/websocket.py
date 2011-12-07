@@ -24,6 +24,8 @@ import logging
 
 from tornado.websocket import WebSocketHandler
 
+from sockjs.tornado import proto
+
 
 class WebSocketTransport(WebSocketHandler):
     """Websocket tranport"""
@@ -31,13 +33,17 @@ class WebSocketTransport(WebSocketHandler):
         self.server = server
         self.session = None
 
-        logging.debug('Initializing websocket handler.')
-
     def open(self, session_id):
         self.session = self.server.create_session(session_id, register=False)
 
-        self.session.set_handler(self)
-        self.session.flush()
+        if not self.session.set_handler(self):
+            self.close()
+            return
+
+        self.session.verify_state()
+
+        if self.session:
+            self.session.flush()
 
     def _detach(self):
         if self.session is not None:
@@ -49,21 +55,36 @@ class WebSocketTransport(WebSocketHandler):
         if not message:
             return
 
+        print '>>>', message
+
         try:
-            self.session.on_message(message)
+            msg = proto.json_load(message)
+
+            print 'DUMP', msg
+
+            # TODO: Verify
+            if isinstance(msg, list):
+                for m in msg:
+                    self.session.on_message(m)
+            else:
+                self.session.on_message(msg)
         except Exception:
             # Close session on exception
-            self.session.close()
+            self.close()
 
     def on_close(self):
         # Close session if websocket connection was closed
-        self.session.close()
+        if self.session is not None:
+            self.session.remove_handler(self)
+            self.session.close()
+            self.session = None
 
-        self._detach()
+            print 'Closed'
 
-    def send_message(self, message):
+    def send_pack(self, message):
         # Send message
         try:
+            print '<<<', message
             self.write_message(message)
         except IOError:
             if self.client_terminated:

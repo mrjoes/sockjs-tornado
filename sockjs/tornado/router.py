@@ -103,11 +103,11 @@ class SockJSRouter(object):
 
         # Generate static URLs
         # TODO: Move me out
-        self._transport_urls.append((prefix,
-                                    static.GreetingsHandler,
-                                    dict(server=self)))
         self._transport_urls.append(((r'%s/iframe[0-9-.a-z_]*.html' % prefix),
                                     static.IFrameHandler,
+                                    dict(server=self)))
+        self._transport_urls.append((prefix + '/?',
+                                    static.GreetingsHandler,
                                     dict(server=self)))
 
     @property
@@ -120,7 +120,7 @@ class SockJSRouter(object):
         routes.extend(self._transport_urls)
         return routes
 
-    def create_session(self, register=True):
+    def create_session(self, session_id, register=True):
         """Creates new session object and returns it.
 
         `request`
@@ -133,6 +133,7 @@ class SockJSRouter(object):
         # TODO: Possible optimization here for settings.get
         s = session.Session(self._connection,
                             self,
+                            session_id,
                             self.settings.get('disconnect_delay')
                             )
 

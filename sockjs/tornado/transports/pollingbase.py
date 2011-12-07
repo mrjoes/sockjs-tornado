@@ -11,26 +11,32 @@ class PreflightHandler(BaseHandler):
     @asynchronous
     def options(self, *args, **kwargs):
         """XHR cross-domain OPTIONS handler"""
+        self.enable_cache()
+        self.handle_session_cookie()
         self.preflight()
+
+        if self.verify_origin():
+            self.set_status(204)
+
+            self.set_header('Access-Control-Allow-Methods', 'OPTIONS, POST')
+            self.set_header('Allow', 'OPTIONS, POST')
+        else:
+            # Set forbidden
+            self.set_status(403)
+
         self.finish()
 
     def preflight(self):
         """Handles request authentication"""
-        if 'Origin' in self.request.headers:
-            if self.verify_origin():
-                self.set_header('Access-Control-Allow-Origin',
-                                self.request.headers['Origin'])
+        origin = self.request.headers.get('Origin', '*')
 
-                if 'Cookie' in self.request.headers:
-                    self.set_header('Access-Control-Allow-Credentials', True)
+        self.set_header('Access-Control-Allow-Origin', origin)
 
-                self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+        headers = self.request.headers.get('Access-Control-Allow-Headers')
+        if headers:
+            self.set_header('Access-Control-Allow-Header', headers)
 
-                return True
-            else:
-                return False
-        else:
-            return True
+        self.set_header('Access-Control-Allow-Credentials', 'true')
 
     def verify_origin(self):
         """Verify if request can be served"""
@@ -44,18 +50,25 @@ class PollingTransportBase(PreflightHandler):
         self.server = server
         self.session = None
 
-        logging.debug('Initializing %s transport.' % self.name)
-
     def _get_session(self, session_id):
         return self.server.get_session(session_id)
 
-    def _get_or_create_session(self, session_id):
+    def _attach_session(self, session_id, start_heartbeat=False):
         session = self._get_session(session_id)
 
         if session is None:
             session = self.server.create_session(session_id)
 
-        return session
+        # Try to attach to the session
+        if not session.set_handler(self, start_heartbeat):
+            return False
+
+        self.session = session
+
+        # Verify if session is properly opened
+        session.verify_state()
+
+        return True
 
     def _detach(self):
         """Detach from the session"""

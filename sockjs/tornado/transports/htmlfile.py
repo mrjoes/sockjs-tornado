@@ -18,43 +18,43 @@ HTMLFILE_HEAD = r'''
   </script>
 '''.strip()
 
+HTMLFILE_HEAD += ' ' * (1024 - len(HTMLFILE_HEAD) + 14)
+HTMLFILE_HEAD += '\r\n\r\n'
+
 
 class HtmlFileTransport(pollingbase.PollingTransportBase):
     name = 'htmlfile'
 
     @asynchronous
     def get(self, session_id):
+        # Start response
+        self.preflight()
+        self.handle_session_cookie()
+        self.disable_cache()
+        self.set_header('Content-Type', 'text/html; charset=UTF-8')
+
         # Grab callback parameter
-        callback = self.get_argument('c')
+        callback = self.get_argument('c', None)
         if not callback:
             self.write('"callback" parameter required')
             self.set_status(500)
             self.finish()
             return
 
-        # Now try to attach to session
-        self.session = self._get_or_create_session(session_id)
-
-        if not self.session.set_handler(self):
-            self.finish()
-            return
-
-        # Start response
-        self.preflight()
-        self.handle_session_cookie()
-        self.disable_cache()
-
-        self.set_header('Content-Type', 'text/html; charset=UTF-8')
-
         # TODO: Fix me - use parameter
         self.write(HTMLFILE_HEAD % callback)
         self.flush()
 
-        # Flush any messages from the session
+        # Now try to attach to session
+        if not self._attach_session(session_id):
+            self.finish()
+            return
+
+        # Flush any pending messages
         self.session.flush()
 
-    def send_message(self, message):
-        self.write('<script>\np("%s");\n</script>\r\n' % proto.json_dumps(message))
+    def send_pack(self, message):
+        self.write('<script>\np(%s);\n</script>\r\n' % proto.json_dumps(message))
         self.flush()
 
         # TODO: Close connection based on amount of data transferred

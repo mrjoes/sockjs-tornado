@@ -94,7 +94,7 @@ class Session(sessioncontainer.SessionBase):
 
         # Heartbeat related stuff
         self._heartbeat_timer = None
-        self._heartbeat_interval = self.server.settings['heartbeat_interval'] * 1000
+        self._heartbeat_interval = self.server.settings['heartbeat_delay'] * 1000
 
     # Session callbacks
     def on_delete(self, forced):
@@ -119,37 +119,22 @@ class Session(sessioncontainer.SessionBase):
         """
         # Check if session already has associated handler
         if self.handler is not None:
-            handler.send_message(proto.disconnect(2010, "Another connection still open"))
+            handler.send_pack(proto.disconnect(2010, "Another connection still open"))
             return False
 
-        # If IP address don't match - refuse connection
-        if self.remote_ip and handler.request.remote_ip != self.remote_ip:
-            logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
-                          self.session_id,
-                          self.remote_ip,
-                          handler.request.remote_ip
-                          ))
+        if self.state == self.OPEN:
+            # If IP address doesn't match - refuse connection
+            if handler.request.remote_ip != self.remote_ip:
+                logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
+                              self.session_id,
+                              self.remote_ip,
+                              self.handler.request.remote_ip
+                              ))
 
-            handler.send_message(proto.disconnect(2010, "Attempted to connect to session from different IP"))
-            return False
-
-        # Handle connection states
-        if self.state == self.CONNECTING:
-            self.remote_ip = handler.remote_ip
-
-            info = ConnectionInfo(handler.remote_ip,
-                      handler.request.arguments,
-                      handler.request.cookies)
-
-            # Change state
-            self.state = self.OPEN
-
-            self.send_message(proto.CONNECT)
-
-            # Call on_open handler
-            self.conn.on_open(info)
+                handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
+                return False
         elif self.state == self.CLOSED:
-            handler.send_message(proto.disconnect(3000, "Go away!"))
+            handler.send_pack(proto.disconnect(3000, "Go away!"))
             return False
 
         # Associate handler and promote session
@@ -160,6 +145,24 @@ class Session(sessioncontainer.SessionBase):
             self.start_heartbeat()
 
         return True
+
+    def verify_state(self):
+        # Verify connection state
+        if self.state == self.CONNECTING:
+            self.remote_ip = self.handler.request.remote_ip
+
+            info = ConnectionInfo(self.handler.request.remote_ip,
+                      self.handler.request.arguments,
+                      self.handler.request.cookies)
+
+            # Change state
+            self.state = self.OPEN
+
+            # Send CONNECT message
+            self.handler.send_pack(proto.CONNECT)
+
+            # Call on_open handler
+            self.conn.on_open(info)
 
     def remove_handler(self, handler):
         """Remove active handler from the session
@@ -193,7 +196,7 @@ class Session(sessioncontainer.SessionBase):
         if not self.send_queue:
             return
 
-        self.handler.send_message(proto.encode_messages(self.send_queue))
+        self.handler.send_pack(proto.encode_messages(self.send_queue))
 
         self.send_queue = []
 
@@ -205,13 +208,9 @@ class Session(sessioncontainer.SessionBase):
             self.conn.on_close()
         finally:
             self.state = self.CLOSED
-            self.conn.is_closed = True
 
-        # TODO: Customizable message?
-        self.send_message(proto.disconnect(3000, 'Closed by the server.'))
-
-        # Notify transport that session was closed
         if self.handler is not None:
+            self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
             self.handler.session_closed()
 
     @property
@@ -242,7 +241,10 @@ class Session(sessioncontainer.SessionBase):
 
     def _heartbeat(self):
         """Heartbeat callback"""
-        self.send_message(proto.HEARTBEAT)
+        if self.handler is not None:
+            self.handler.send_pack(proto.HEARTBEAT)
+        else:
+            self.stop_heartbeat()
 
     # Message handler
     def on_message(self, msg):

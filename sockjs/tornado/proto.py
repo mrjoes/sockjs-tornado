@@ -45,7 +45,7 @@ def disconnect(code, reason):
 
 
 def encode_messages(messages):
-    return 'a%s' % json.dumps(messages)
+    return 'a%s' % json_dumps(messages)
 
 
 def json_dumps(msg):
@@ -54,7 +54,7 @@ def json_dumps(msg):
     `msg`
         Object to dump
     """
-    return json.dumps(msg)
+    return json.dumps(msg, separators=(',', ':'))
 
 
 def json_load(msg):

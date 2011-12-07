@@ -1,42 +1,43 @@
+import urllib
+
 from tornado.web import asynchronous
 
 from sockjs.tornado import proto
-from sockjs.tornado.transports import pollingbase
+from sockjs.tornado.transports import pollingbase, xhr
 
 
-class JSONPTransport(pollingbase.PollingTransportBase):
-    name = 'jsonp'
-
+class JSONPTransport(xhr.XhrPollingTransport):
     @asynchronous
     def get(self, session_id):
+        # Start response
+        self.handle_session_cookie()
+        self.disable_cache()
+
         # Grab callback parameter
-        self.callback = self.get_argument('c')
+        self.callback = self.get_argument('c', None)
         if not self.callback:
             self.write('"callback" parameter required')
             self.set_status(500)
             self.finish()
             return
 
-        self.session = self._get_or_create_session(session_id)
+        # Get or create session without starting heartbeat
+        if not self._attach_session(session_id, False):
+            return
 
-        if not self.session.set_handler(self, False):
-            self.finish()
+        if not self.session:
             return
 
         if not self.session.send_queue:
-            self.session.reset_heartbeat()
+            self.session.start_heartbeat()
         else:
             self.session.flush()
 
-    def send_message(self, message):
-        msg = '%s("%s");\r\n' % (self.callback, proto.json_dumps(message))
-
-        self.preflight()
-        self.handle_session_cookie()
-        self.disable_cache()
+    def send_pack(self, message):
+        msg = '%s(%s);\r\n' % (self.callback, proto.json_dumps(message))
 
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
-        self.set_header('Content-Length', len(message))
+        self.set_header('Content-Length', len(msg))
 
         self.write(msg)
 
@@ -45,7 +46,7 @@ class JSONPTransport(pollingbase.PollingTransportBase):
         self.finish()
 
 
-class JSONPSendHandler(pollingbase.PreflightHandler):
+class JSONPSendHandler(pollingbase.PollingTransportBase):
     def post(self, session_id):
         self.preflight()
 
@@ -57,16 +58,30 @@ class JSONPSendHandler(pollingbase.PreflightHandler):
 
         #data = self.request.body.decode('utf-8')
         data = self.request.body
-        if not data or not data.startswith('d='):
+
+        ctype = self.request.headers.get('Content-Type', '').lower()
+        if ctype == 'application/x-www-form-urlencoded':
+            if not data.startswith('d='):
+                self.write("Payload expected.")
+                self.set_status(500)
+                return
+
+            data = urllib.unquote_plus(data[2:])
+
+        print '$$$$', ctype, data
+
+        if not data:
             self.write("Payload expected.")
             self.set_status(500)
             return
 
         try:
-            messages = proto.json_load(data[2:])
+            messages = proto.json_load(data)
+
+            print 'xxxx', messages
         except:
             # TODO: Proper error handling
-            self.write("Broken JSON encoding")
+            self.write("Broken JSON encoding.")
             self.set_status(500)
             return
 

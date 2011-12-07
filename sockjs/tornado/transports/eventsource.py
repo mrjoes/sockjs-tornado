@@ -8,23 +8,24 @@ class EventSourceTransport(pollingbase.PollingTransportBase):
 
     @asynchronous
     def get(self, session_id):
-        self.session = self._get_or_create_session(session_id)
-
-        if not self.session.set_handler(self):
-            self.finish()
-            return
-
         # Start response
         self.preflight()
         self.handle_session_cookie()
         self.disable_cache()
 
         self.set_header('Content-Type', 'text/event-stream; charset=UTF-8')
+        self.write('\r\n')
+        self.flush()
 
-        self.session.flush()
+        if not self._attach_session(session_id):
+            self.finish()
+            return
 
-    def send_message(self, message):
-        self.write('data: %s\r\n' + message)
+        if self.session is not None:
+            self.session.flush()
+
+    def send_pack(self, message):
+        self.write('data: %s\r\n\r\n' % message)
         self.flush()
 
         # TODO: Close connection based on amount of data transferred

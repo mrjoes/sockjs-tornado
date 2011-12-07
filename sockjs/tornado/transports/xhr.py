@@ -5,38 +5,40 @@ from sockjs.tornado.transports import pollingbase
 
 
 class XhrPollingTransport(pollingbase.PollingTransportBase):
-    name = 'xhr-polling'
-
     @asynchronous
     def post(self, session_id):
-        self.session = self._get_or_create_session(session_id)
-
-        # Assign handler but do not start heartbeats
-        if not self.session.set_handler(self, False):
-            self.finish()
-            return
-
-        if not self.session.send_queue:
-            self.session.reset_heartbeat()
-        else:
-            self.session.flush()
-
-    def send_message(self, message):
+        # Start response
         self.preflight()
         self.handle_session_cookie()
 
-        self.set_header('Content-Type', 'text/plain; charset=UTF-8')
-        self.set_header('Content-Length', len(message))
-        self.write(message)
+        # Get or create session without starting heartbeat
+        if not self._attach_session(session_id, False):
+            return
+
+        if not self.session:
+            return
+
+        if not self.session.send_queue:
+            self.session.start_heartbeat()
+        else:
+            self.session.flush()
+
+    def send_pack(self, message):
+        self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
+        self.set_header('Content-Length', len(message) + 1)
+        self.write(message + '\n')
 
         self._detach()
 
         self.finish()
 
 
-class XhrSendHandler(pollingbase.PreflightHandler):
+class XhrSendHandler(pollingbase.PollingTransportBase):
+    name = 'xhr-polling'
+
     def post(self, session_id):
         self.preflight()
+        self.handle_session_cookie()
 
         session = self._get_session(session_id)
 
@@ -55,7 +57,7 @@ class XhrSendHandler(pollingbase.PreflightHandler):
             messages = proto.json_load(data)
         except:
             # TODO: Proper error handling
-            self.write("Broken JSON encoding")
+            self.write("Broken JSON encoding.")
             self.set_status(500)
             return
 
@@ -63,3 +65,4 @@ class XhrSendHandler(pollingbase.PreflightHandler):
             session.on_message(m)
 
         self.set_status(204)
+        self.set_header('Content-Type', 'text/plain')
