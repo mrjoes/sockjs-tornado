@@ -1,4 +1,4 @@
-from tornado import asynchronous
+from tornado.web import asynchronous
 
 from sockjs.tornado.transports import pollingbase
 
@@ -16,6 +16,9 @@ class EventSourceTransport(pollingbase.PollingTransportBase):
 
         # Start response
         self.preflight()
+        self.handle_session_cookie()
+        self.disable_cache()
+
         self.set_header('Content-Type', 'text/event-stream; charset=UTF-8')
 
         self.session.flush()

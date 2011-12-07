@@ -141,15 +141,13 @@ class Session(sessioncontainer.SessionBase):
                       handler.request.arguments,
                       handler.request.cookies)
 
-            result = self.conn.on_open(info)
+            # Change state
+            self.state = self.OPEN
 
             self.send_message(proto.CONNECT)
 
-            if result is not None and not result:
-                handler.send_message(proto.disconnect(2010, "Server rejected connection"))
-                return False
-
-            self.state = self.OPEN
+            # Call on_open handler
+            self.conn.on_open(info)
         elif self.state == self.CLOSED:
             handler.send_message(proto.disconnect(3000, "Go away!"))
             return False

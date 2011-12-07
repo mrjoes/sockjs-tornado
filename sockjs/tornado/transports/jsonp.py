@@ -1,6 +1,7 @@
-from tornado import asynchronous
+from tornado.web import asynchronous
 
-from sockjs.tornado.transports import pollingbase, proto
+from sockjs.tornado import proto
+from sockjs.tornado.transports import pollingbase
 
 
 class JSONPTransport(pollingbase.PollingTransportBase):
@@ -31,6 +32,9 @@ class JSONPTransport(pollingbase.PollingTransportBase):
         msg = '%s("%s");\r\n' % (self.callback, proto.json_dumps(message))
 
         self.preflight()
+        self.handle_session_cookie()
+        self.disable_cache()
+
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
         self.set_header('Content-Length', len(message))
 

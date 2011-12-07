@@ -1,6 +1,7 @@
-from tornado import asynchronous
+from tornado.web import asynchronous
 
-from sockjs.tornado.transports import pollingbase, proto
+from sockjs.tornado import proto
+from sockjs.tornado.transports import pollingbase
 
 HTMLFILE_HEAD = r'''
 <!doctype html>
@@ -40,6 +41,9 @@ class HtmlFileTransport(pollingbase.PollingTransportBase):
 
         # Start response
         self.preflight()
+        self.handle_session_cookie()
+        self.disable_cache()
+
         self.set_header('Content-Type', 'text/html; charset=UTF-8')
 
         # TODO: Fix me - use parameter

@@ -45,6 +45,10 @@ class WebSocketTransport(WebSocketHandler):
             self.session = None
 
     def on_message(self, message):
+        # Ignore empty messages
+        if not message:
+            return
+
         try:
             self.session.on_message(message)
         except Exception:

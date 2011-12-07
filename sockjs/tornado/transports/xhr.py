@@ -1,6 +1,7 @@
-from tornado import asynchronous
+from tornado.web import asynchronous
 
-from sockjs.tornado.transports import pollingbase, proto
+from sockjs.tornado import proto
+from sockjs.tornado.transports import pollingbase
 
 
 class XhrPollingTransport(pollingbase.PollingTransportBase):
@@ -22,6 +23,8 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
 
     def send_message(self, message):
         self.preflight()
+        self.handle_session_cookie()
+
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
         self.set_header('Content-Length', len(message))
         self.write(message)

@@ -1,12 +1,11 @@
 import logging
 
-from tornado import asynchronous
-from tornado.web import RequestHandler
+from tornado.web import asynchronous
 
-from sockjs.tornado import proto
+from sockjs.tornado.basehandler import BaseHandler
 
 
-class PreflightHandler(RequestHandler):
+class PreflightHandler(BaseHandler):
     """CORS preflight handler"""
 
     @asynchronous
@@ -83,4 +82,3 @@ class PollingTransportBase(PreflightHandler):
     def on_connection_close(self):
         """Called by Tornado, when connection was closed"""
         self._detach()
-

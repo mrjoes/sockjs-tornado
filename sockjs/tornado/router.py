@@ -21,7 +21,7 @@
 
 from tornado import ioloop, version_info
 
-from sockjs.tornado import transports, session, sessioncontainer
+from sockjs.tornado import transports, session, sessioncontainer, static
 
 
 DEFAULT_SETTINGS = {
@@ -33,7 +33,9 @@ DEFAULT_SETTINGS = {
     # you absolutely sure that new value will work.
     'heartbeat_delay': 25,
     # Enabled protocols
-    'disabled_transports': []
+    'disabled_transports': [],
+    # SockJS location
+    'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.1.min.js'
     }
 
 GLOBAL_HANDLERS = [
@@ -42,10 +44,10 @@ GLOBAL_HANDLERS = [
 ]
 
 TRANSPORTS = {
-    'websocket': transports.WebsocketTransport,
+    'websocket': transports.WebSocketTransport,
     'xhr': transports.XhrPollingTransport,
     'xhr_streaming': transports.XhrStreamingTransport,
-    'jsonp': transports.JSONPPollingTransport,
+    'jsonp': transports.JSONPTransport,
     'eventsource': transports.EventSourceTransport,
     'htmlfile': transports.HtmlFileTransport
 }
@@ -98,6 +100,15 @@ class SockJSRouter(object):
                  v,
                  dict(server=self))
                 )
+
+        # Generate static URLs
+        # TODO: Move me out
+        self._transport_urls.append((prefix,
+                                    static.GreetingsHandler,
+                                    dict(server=self)))
+        self._transport_urls.append(((r'%s/iframe[0-9-.a-z_]*.html' % prefix),
+                                    static.IFrameHandler,
+                                    dict(server=self)))
 
     @property
     def urls(self):

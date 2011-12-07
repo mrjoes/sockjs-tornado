@@ -1,4 +1,4 @@
-from tornado import asynchronous
+from tornado.web import asynchronous
 
 from sockjs.tornado.transports import pollingbase
 
@@ -14,8 +14,10 @@ class XhrStreamingTransport(pollingbase.PollingTransportBase):
             self.finish()
             return
 
-        # Start response
+        # Handle cookie
         self.preflight()
+        self.handle_session_cookie()
+
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
 
         # Send prelude and flush any pending messages
