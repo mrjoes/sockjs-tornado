@@ -176,15 +176,13 @@ class Session(sessioncontainer.SessionBase):
 
         self.stop_heartbeat()
 
-    def send_message(self, pack):
+    def send_message(self, msg):
         """Send message
 
-        `pack`
+        `msg`
             Message to send
         """
-        logging.debug('<<< ' + pack)
-
-        self.send_queue.append(pack)
+        self.send_queue.append(msg)
         self.flush()
 
     def flush(self):

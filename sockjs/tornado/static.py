@@ -23,7 +23,7 @@ class IFrameHandler(BaseHandler):
         self.server = server
 
     def get(self):
-        self._enable_cache()
+        self.enable_cache()
 
         self.write(IFRAME_TEXT % self.server.settings['sockjs_url'])
 
@@ -33,7 +33,7 @@ class GreetingsHandler(BaseHandler):
         self.server = server
 
     def get(self):
-        self._enable_cache()
+        self.enable_cache()
 
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
         self.write('Welcome to SockJS!')
