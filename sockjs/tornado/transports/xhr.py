@@ -4,11 +4,14 @@ from sockjs.tornado.transports import pollingbase, proto
 
 
 class XhrPollingTransport(pollingbase.PollingTransportBase):
+    name = 'xhr-polling'
+
     @asynchronous
     def post(self, session_id):
         self.session = self._get_or_create_session(session_id)
 
-        if not self.session.set_handler(self):
+        # Assign handler but do not start heartbeats
+        if not self.session.set_handler(self, False):
             self.finish()
             return
 

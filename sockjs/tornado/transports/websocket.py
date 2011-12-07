@@ -37,12 +37,10 @@ class WebSocketTransport(WebSocketHandler):
         self.session = self.server.create_session(session_id, register=False)
 
         self.session.set_handler(self)
-        self.session.reset_heartbeat()
         self.session.flush()
 
     def _detach(self):
         if self.session is not None:
-            self.session.stop_heartbeat()
             self.session.remove_handler(self)
             self.session = None
 

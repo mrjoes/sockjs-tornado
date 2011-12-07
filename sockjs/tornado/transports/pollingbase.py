@@ -61,7 +61,6 @@ class PollingTransportBase(PreflightHandler):
     def _detach(self):
         """Detach from the session"""
         if self.session:
-            self.session.stop_heartbeat()
             self.session.remove_handler(self)
             self.session = None
 

@@ -4,11 +4,21 @@ from sockjs.tornado.transports import pollingbase, proto
 
 
 class JSONPTransport(pollingbase.PollingTransportBase):
+    name = 'jsonp'
+
     @asynchronous
     def get(self, session_id):
+        # Grab callback parameter
+        self.callback = self.get_argument('c')
+        if not self.callback:
+            self.write('"callback" parameter required')
+            self.set_status(500)
+            self.finish()
+            return
+
         self.session = self._get_or_create_session(session_id)
 
-        if not self.session.set_handler(self):
+        if not self.session.set_handler(self, False):
             self.finish()
             return
 
@@ -18,7 +28,7 @@ class JSONPTransport(pollingbase.PollingTransportBase):
             self.session.flush()
 
     def send_message(self, message):
-        msg = 'callback("%s");\r\n' % proto.json_dumps(message)
+        msg = '%s("%s");\r\n' % (self.callback, proto.json_dumps(message))
 
         self.preflight()
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')

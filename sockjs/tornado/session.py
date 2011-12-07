@@ -111,7 +111,7 @@ class Session(sessioncontainer.SessionBase):
             self.close()
 
     # Add session
-    def set_handler(self, handler):
+    def set_handler(self, handler, start_heartbeat=True):
         """Set active handler for the session
 
         `handler`
@@ -158,6 +158,9 @@ class Session(sessioncontainer.SessionBase):
         self.handler = handler
         self.promote()
 
+        if start_heartbeat:
+            self.start_heartbeat()
+
         return True
 
     def remove_handler(self, handler):
@@ -172,6 +175,8 @@ class Session(sessioncontainer.SessionBase):
 
         self.handler = None
         self.promote()
+
+        self.stop_heartbeat()
 
     def send_message(self, pack):
         """Send message
@@ -203,6 +208,7 @@ class Session(sessioncontainer.SessionBase):
         try:
             self.conn.on_close()
         finally:
+            self.state = self.CLOSED
             self.conn.is_closed = True
 
         # TODO: Customizable message?
@@ -215,7 +221,7 @@ class Session(sessioncontainer.SessionBase):
     @property
     def is_closed(self):
         """Check if session was closed"""
-        return self.conn.is_closed
+        return self.state == self.CLOSED
 
     # Heartbeats
     def start_heartbeat(self):
