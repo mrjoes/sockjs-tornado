@@ -25,7 +25,8 @@ class JSONPTransport(xhr.XhrPollingTransport):
         if not self._attach_session(session_id, False):
             return
 
-        if not self.session:
+        # Might get already detached because connection was closed in on_open
+        if self.detached:
             return
 
         if not self.session.send_queue:

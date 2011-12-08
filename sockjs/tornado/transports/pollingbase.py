@@ -49,6 +49,7 @@ class PollingTransportBase(PreflightHandler):
     def initialize(self, server):
         self.server = server
         self.session = None
+        self.detached = False
 
     def _get_session(self, session_id):
         return self.server.get_session(session_id)
@@ -75,6 +76,7 @@ class PollingTransportBase(PreflightHandler):
         if self.session:
             self.session.remove_handler(self)
             self.session = None
+            self.detached = True
 
     @asynchronous
     def post(self, session_id):

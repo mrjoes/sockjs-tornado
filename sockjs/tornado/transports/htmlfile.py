@@ -51,7 +51,8 @@ class HtmlFileTransport(pollingbase.PollingTransportBase):
             return
 
         # Flush any pending messages
-        self.session.flush()
+        if not self.detached:
+            self.session.flush()
 
     def send_pack(self, message):
         self.write('<script>\np(%s);\n</script>\r\n' % proto.json_dumps(message))

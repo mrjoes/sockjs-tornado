@@ -21,7 +21,7 @@ class EventSourceTransport(pollingbase.PollingTransportBase):
             self.finish()
             return
 
-        if self.session is not None:
+        if not self.detached:
             self.session.flush()
 
     def send_pack(self, message):
