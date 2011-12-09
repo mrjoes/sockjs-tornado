@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 
 from tornado import web, ioloop
 
@@ -23,7 +24,12 @@ class EchoConnection(SockJSConnection):
         print 'Clients: %d' % (len(self.clients))
 
 if __name__ == '__main__':
-    EchoRouter = SockJSRouter(EchoConnection, '/echo')
+    options = dict()
+
+    if len(sys.argv) > 1:
+        options['immediate_flush'] = False
+
+    EchoRouter = SockJSRouter(EchoConnection, '/echo', options)
 
     app = web.Application(EchoRouter.urls)
 

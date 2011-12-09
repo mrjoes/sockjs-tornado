@@ -42,14 +42,15 @@ class ConnectionInfo(object):
         return self.cookies.get(name)
 
 
+# Session states
+CONNECTING = 0
+OPEN = 1
+CLOSED = 2
+
+
 class Session(sessioncontainer.SessionBase):
     """SockJS session implementation.
     """
-
-    # Session statuses
-    CONNECTING = 0
-    OPEN = 1
-    CLOSED = 2
 
     def __init__(self, conn, server, session_id, expiry=None):
         """Session constructor.
@@ -70,7 +71,7 @@ class Session(sessioncontainer.SessionBase):
         self.send_queue = []
 
         self.handler = None
-        self.state = self.CONNECTING
+        self.state = CONNECTING
 
         self.remote_ip = None
 
@@ -80,6 +81,9 @@ class Session(sessioncontainer.SessionBase):
         # Heartbeat related stuff
         self._heartbeat_timer = None
         self._heartbeat_interval = self.server.settings['heartbeat_delay'] * 1000
+
+        self._immediate_flush = self.server.settings['immediate_flush']
+        self._pending_flush = False
 
     # Session callbacks
     def on_delete(self, forced):
@@ -107,7 +111,7 @@ class Session(sessioncontainer.SessionBase):
             handler.send_pack(proto.disconnect(2010, "Another connection still open"))
             return False
 
-        if self.state == self.OPEN:
+        if self.state == OPEN:
             # If IP address doesn't match - refuse connection
             if handler.request.remote_ip != self.remote_ip:
                 logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
@@ -118,7 +122,7 @@ class Session(sessioncontainer.SessionBase):
 
                 handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
                 return False
-        elif self.state == self.CLOSED:
+        elif self.state == CLOSED:
             handler.send_pack(proto.disconnect(3000, "Go away!"))
             return False
 
@@ -133,7 +137,7 @@ class Session(sessioncontainer.SessionBase):
 
     def verify_state(self):
         # Verify connection state
-        if self.state == self.CONNECTING:
+        if self.state == CONNECTING:
             self.remote_ip = self.handler.request.remote_ip
 
             info = ConnectionInfo(self.handler.request.remote_ip,
@@ -141,7 +145,7 @@ class Session(sessioncontainer.SessionBase):
                       self.handler.request.cookies)
 
             # Change state
-            self.state = self.OPEN
+            self.state = OPEN
 
             # Send CONNECT message
             self.handler.send_pack(proto.CONNECT)
@@ -172,14 +176,26 @@ class Session(sessioncontainer.SessionBase):
         """
         assert isinstance(msg, basestring), 'Can only send strings'
 
-        if self.handler and not self.send_queue:
-            self.handler.send_pack(proto.encode_single_message(msg))
+        if isinstance(msg, unicode):
+            msg = msg.encode('utf-8')
+
+        if self._immediate_flush:
+            if self.handler and not self.send_queue:
+                self.handler.send_pack(proto.encode_single_message(msg))
+            else:
+                self.send_queue.append(msg)
+                self.flush()
         else:
             self.send_queue.append(msg)
-            self.flush()
+
+            if not self._pending_flush:
+                self.server.io_loop.add_callback(self.flush)
+                self._pending_flush = True
 
     def flush(self):
         """Flush message queue if there's an active connection running"""
+        self._pending_flush = False
+
         if self.handler is None:
             return
 
@@ -197,7 +213,7 @@ class Session(sessioncontainer.SessionBase):
         try:
             self.conn.on_close()
         finally:
-            self.state = self.CLOSED
+            self.state = CLOSED
 
         if self.handler is not None:
             self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
@@ -206,7 +222,7 @@ class Session(sessioncontainer.SessionBase):
     @property
     def is_closed(self):
         """Check if session was closed"""
-        return self.state == self.CLOSED
+        return self.state == CLOSED
 
     # Heartbeats
     def start_heartbeat(self):
