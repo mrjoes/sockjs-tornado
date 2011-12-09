@@ -6,19 +6,19 @@ running on top of `Tornado <http://tornadoweb.org>`_ framework.
 
 Simplified echo SockJS server could look more or less like::
 
-	from tornado import web, ioloop
-	from sockjs.tornado import SockJSRouter, SockJSConnection
+    from tornado import web, ioloop
+    from sockjs.tornado import SockJSRouter, SockJSConnection
 
-	class EchoConnection(SockJSConnection):
-		def on_message(self, msg):
-			self.send(msg)
+    class EchoConnection(SockJSConnection):
+        def on_message(self, msg):
+            self.send(msg)
 
-	if __name__ == '__main__':
-	    EchoRouter = SockJSRouter(EchoConnection, '/echo')
+    if __name__ == '__main__':
+        EchoRouter = SockJSRouter(EchoConnection, '/echo')
 
-	    app = web.Application(EchoRouter.urls)
-	    app.listen(9999)
-		ioloop.IOLoop.instance().start()
+        app = web.Application(EchoRouter.urls)
+        app.listen(9999)
+        ioloop.IOLoop.instance().start()
 
 (Take look at `examples <https://github.com/MrJoes/sockjs-tornado/tree/master/examples>`_ for a complete version).
 
