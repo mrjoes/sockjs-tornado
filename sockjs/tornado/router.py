@@ -35,7 +35,7 @@ DEFAULT_SETTINGS = {
     # Enabled protocols
     'disabled_transports': [],
     # SockJS location
-    'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.1.min.js'
+    'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.1.2.min.js'
     }
 
 GLOBAL_HANDLERS = [
@@ -62,8 +62,8 @@ STATIC_HANDLERS = {
 class SockJSRouter(object):
     def __init__(self,
                  connection,
-                 user_settings=dict(),
                  prefix='',
+                 user_settings=dict(),
                  io_loop=None):
         # TODO: Version check
         if version_info[0] < 2:
