@@ -1,11 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.eventsource
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    EventSource transport implementation.
+"""
+
 from tornado.web import asynchronous
 
 from sockjs.tornado.transports import pollingbase
 
 
 class EventSourceTransport(pollingbase.PollingTransportBase):
-    name = 'eventsource'
-
     @asynchronous
     def get(self, session_id):
         # Start response

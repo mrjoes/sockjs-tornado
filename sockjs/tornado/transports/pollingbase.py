@@ -1,4 +1,10 @@
-import logging
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.pollingbase
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Polling transports base
+"""
 
 from tornado.web import asynchronous
 
@@ -6,7 +12,7 @@ from sockjs.tornado.basehandler import PreflightHandler
 
 
 class PollingTransportBase(PreflightHandler):
-    """Polling handler base"""
+    """Polling transport handler base class"""
     def initialize(self, server):
         self.server = server
         self.session = None

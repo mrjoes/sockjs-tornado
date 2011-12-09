@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from tornado import web, httpserver, ioloop
 
 from sockjs.tornado import SockJSRouter, SockJSConnection

@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.jsonp
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    JSONP transport implementation.
+"""
+
 import urllib
 
 from tornado.web import asynchronous

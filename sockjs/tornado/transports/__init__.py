@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sockjs.tornado.transports.pollingbase
 
 from .xhr import XhrPollingTransport, XhrSendHandler

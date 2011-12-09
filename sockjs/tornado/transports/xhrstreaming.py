@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.xhrstreaming
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Xhr-Streaming transport implementation
+"""
+
 from tornado.web import asynchronous
 
 from sockjs.tornado.transports import pollingbase

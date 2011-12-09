@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.basehandler
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Various base http handlers
+"""
+
 import datetime
 
 from tornado.web import asynchronous, RequestHandler

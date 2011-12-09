@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.xhr
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    Xhr-Polling transport implementation
+"""
+
 from tornado.web import asynchronous
 
 from sockjs.tornado import proto

@@ -1,8 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.transports.htmlfile
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    HtmlFile transport implementation.
+"""
+
 from tornado.web import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
 
+# HTMLFILE template
 HTMLFILE_HEAD = r'''
 <!doctype html>
 <html><head>
@@ -17,14 +26,11 @@ HTMLFILE_HEAD = r'''
     window.onload = function() {c.stop();};
   </script>
 '''.strip()
-
 HTMLFILE_HEAD += ' ' * (1024 - len(HTMLFILE_HEAD) + 14)
 HTMLFILE_HEAD += '\r\n\r\n'
 
 
 class HtmlFileTransport(pollingbase.PollingTransportBase):
-    name = 'htmlfile'
-
     @asynchronous
     def get(self, session_id):
         # Start response

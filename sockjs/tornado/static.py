@@ -1,3 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+    sockjs.tornado.static
+    ~~~~~~~~~~~~~~~~~~~~~
+
+    Various static handlers required for SockJS to function properly.
+"""
+
 import time
 import hashlib
 
@@ -24,6 +32,8 @@ IFRAME_TEXT = '''<!DOCTYPE html>
 
 
 class IFrameHandler(BaseHandler):
+    """IFrame page handler"""
+
     def initialize(self, server):
         self.server = server
 
@@ -50,6 +60,8 @@ class IFrameHandler(BaseHandler):
 
 
 class GreetingsHandler(BaseHandler):
+    """Greetings page handler"""
+
     def initialize(self, server):
         self.server = server
 
@@ -61,6 +73,9 @@ class GreetingsHandler(BaseHandler):
 
 
 class ChunkingTestHandler(PreflightHandler):
+    """Chunking test handler"""
+
+    # Step timeouts according to sockjs documentation
     steps = [0.005, 0.025, 0.125, 0.625, 3.125]
 
     def initialize(self, server):
@@ -73,12 +88,15 @@ class ChunkingTestHandler(PreflightHandler):
         self.preflight()
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
 
+        # Send one 'h' immediately
         self.write('h\n')
         self.flush()
 
+        # Send 2048 spaces followed by 'h'
         self.write(' ' * 2048 + 'h\n')
         self.flush()
 
+        # Send 'h' with different timeouts
         def run_step():
             try:
                 self.write('h\n')
