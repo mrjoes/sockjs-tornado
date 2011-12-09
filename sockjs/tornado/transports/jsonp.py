@@ -5,8 +5,8 @@
 
     JSONP transport implementation.
 """
-
 import urllib
+import logging
 
 from tornado.web import asynchronous
 
@@ -94,8 +94,15 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             self.set_status(500)
             return
 
-        for m in messages:
-            session.on_message(m)
+        try:
+            for m in messages:
+                session.on_message(m)
+        except Exception:
+            logging.exception('JSONP incoming')
+            session.close()
+
+            self.set_status(500)
+            return
 
         self.write('ok')
         self.set_status(200)

@@ -5,6 +5,7 @@
 
     Xhr-Polling transport implementation
 """
+import logging
 
 from tornado.web import asynchronous
 
@@ -70,8 +71,15 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
             self.set_status(500)
             return
 
-        for m in messages:
-            session.on_message(m)
+        try:
+            for m in messages:
+                session.on_message(m)
+        except Exception:
+            logging.exception('XHR incoming')
+            session.close()
+
+            self.set_status(500)
+            return
 
         self.set_status(204)
         self.set_header('Content-Type', 'text/plain')
