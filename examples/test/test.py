@@ -20,11 +20,11 @@ if __name__ == '__main__':
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
 
-    EchoRouter = SockJSRouter(EchoConnection, prefix='/echo')
+    EchoRouter = SockJSRouter(EchoConnection, '/echo')
 
-    CloseRouter = SockJSRouter(CloseConnection, prefix='/close')
+    CloseRouter = SockJSRouter(CloseConnection, '/close')
 
-    WSOffRouter = SockJSRouter(EchoConnection, prefix='/disabled_websocket_echo',
+    WSOffRouter = SockJSRouter(EchoConnection, '/disabled_websocket_echo',
                             user_settings=dict(disabled_transports=['websocket']))
 
     http_app = web.Application(EchoRouter.urls +
