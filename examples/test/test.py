@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from tornado import web, httpserver, ioloop
+from tornado import web, ioloop
 
 from sockjs.tornado import SockJSRouter, SockJSConnection
 
@@ -29,11 +29,9 @@ if __name__ == '__main__':
     WSOffRouter = SockJSRouter(EchoConnection, '/disabled_websocket_echo',
                             user_settings=dict(disabled_transports=['websocket']))
 
-    http_app = web.Application(EchoRouter.urls +
-                               CloseRouter.urls +
-                               WSOffRouter.urls)
+    app = web.Application(EchoRouter.urls +
+                          CloseRouter.urls +
+                          WSOffRouter.urls)
 
-    http_server = httpserver.HTTPServer(http_app)
-    http_server.listen(8080)
-
+    app.listen(8080)
     ioloop.IOLoop.instance().start()
