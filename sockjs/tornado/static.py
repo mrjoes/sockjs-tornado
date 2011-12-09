@@ -1,6 +1,9 @@
+import time
 import hashlib
 
-from sockjs.tornado.basehandler import BaseHandler
+from tornado.web import asynchronous
+
+from sockjs.tornado.basehandler import BaseHandler, PreflightHandler
 
 IFRAME_TEXT = '''<!DOCTYPE html>
 <html>
@@ -55,3 +58,39 @@ class GreetingsHandler(BaseHandler):
 
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
         self.write('Welcome to SockJS!\n')
+
+
+class ChunkingTestHandler(PreflightHandler):
+    steps = [0.005, 0.025, 0.125, 0.625, 3.125]
+
+    def initialize(self, server):
+        self.server = server
+        self.step = 0
+        self.io_loop = server.io_loop
+
+    @asynchronous
+    def post(self):
+        self.preflight()
+        self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
+
+        self.write('h\n')
+        self.flush()
+
+        self.write(' ' * 2048 + 'h\n')
+        self.flush()
+
+        def run_step():
+            try:
+                self.write('h\n')
+                self.flush()
+
+                self.step += 1
+                if self.step < len(self.steps):
+                    self.io_loop.add_timeout(time.time() + self.steps[self.step],
+                                             run_step)
+                else:
+                    self.finish()
+            except IOError:
+                pass
+
+        self.io_loop.add_timeout(time.time() + self.steps[0], run_step)

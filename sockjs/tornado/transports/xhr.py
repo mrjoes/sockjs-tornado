@@ -55,7 +55,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
             return
 
         try:
-            messages = proto.json_load(data)
+            messages = proto.json_decode(data)
         except:
             # TODO: Proper error handling
             self.write("Broken JSON encoding.")

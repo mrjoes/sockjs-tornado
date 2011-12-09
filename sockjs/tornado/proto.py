@@ -20,47 +20,43 @@
 
     SockJS protocol related functions
 """
+import logging
+
+# TODO: Add support for ujson module once they can accept unicode strings
+
+# Try to find best json encoder available
 try:
-    import simplejson as json
-    json_decimal_args = {"use_decimal": True}
+    # Check for simplejson
+    import simplejson
+
+    json_encode = lambda data: simplejson.dumps(data, separators=(',', ':'))
+    json_decode = lambda data: simplejson.loads(data)
+
+    logging.debug('sockjs.tornado will use simplejson module')
 except ImportError:
+    # Use slow json
     import json
-    import decimal
 
-    class DecimalEncoder(json.JSONEncoder):
-        def default(self, o):
-            if isinstance(o, decimal.Decimal):
-                return float(o)
-            return super(DecimalEncoder, self).default(o)
-    json_decimal_args = {"cls": DecimalEncoder}
+    logging.debug('sockjs.tornado will use json module')
 
+    json_encode = lambda data: json.dumps(data, separators=(',', ':'))
+    json_decode = lambda data: json.loads(data)
+
+# Protocol handlers
 CONNECT = 'o'
 DISCONNECT = 'c'
 MESSAGE = 'm'
 HEARTBEAT = 'h'
 
 
+# Various protocol helpers
 def disconnect(code, reason):
     return 'c[%d,"%s"]' % (code, reason)
 
 
 def encode_messages(messages):
-    return 'a%s' % json_dumps(messages)
+    return 'a%s' % json_encode(messages)
 
 
-def json_dumps(msg):
-    """Dump object as a json string
-
-    `msg`
-        Object to dump
-    """
-    return json.dumps(msg, separators=(',', ':'))
-
-
-def json_load(msg):
-    """Load json-encoded object
-
-    `msg`
-        json encoded object
-    """
-    return json.loads(msg)
+def encode_single_message(msg):
+    return 'a[%s]' % json_encode(msg)

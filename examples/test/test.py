@@ -1,6 +1,9 @@
+import time
+
 from tornado import web, httpserver, ioloop
 
 from sockjs.tornado import SockJSRouter, SockJSConnection
+from sockjs.tornado.transports.pollingbase import PreflightHandler
 
 
 class EchoConnection(SockJSConnection):
@@ -15,6 +18,7 @@ class CloseConnection(SockJSConnection):
     def on_message(self, msg):
         pass
 
+
 if __name__ == '__main__':
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
@@ -26,7 +30,9 @@ if __name__ == '__main__':
     WSOffRouter = SockJSRouter(EchoConnection, prefix='/disabled_websocket_echo',
                             user_settings=dict(disabled_transports=['websocket']))
 
-    http_app = web.Application(EchoRouter.urls + CloseRouter.urls + WSOffRouter.urls)
+    http_app = web.Application(EchoRouter.urls +
+                               CloseRouter.urls +
+                               WSOffRouter.urls)
 
     http_server = httpserver.HTTPServer(http_app)
     http_server.listen(8080)

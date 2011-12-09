@@ -22,6 +22,7 @@
 """
 import logging
 
+import tornado.escape
 from tornado.websocket import WebSocketHandler
 
 from sockjs.tornado import proto
@@ -32,6 +33,39 @@ class WebSocketTransport(WebSocketHandler):
     def initialize(self, server):
         self.server = server
         self.session = None
+
+    # Additional verification of the websocket handshake
+    # For now it will stay here, till https://github.com/facebook/tornado/pull/415
+    # is merged.
+    def _execute(self, transforms, *args, **kwargs):
+        # Websocket only supports GET method
+        if self.request.method != 'GET':
+            self.stream.write(tornado.escape.utf8(
+                "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
+            ))
+            self.stream.close()
+            return
+
+        # Upgrade header should be present and should be equal to WebSocket
+        if self.request.headers.get("Upgrade", "").lower() != 'websocket':
+            self.stream.write(tornado.escape.utf8(
+                "HTTP/1.1 400 Bad Request\r\n\r\n"
+                "Can \"Upgrade\" only to \"WebSocket\"."
+            ))
+            self.stream.close()
+            return
+
+        # Connection header should be upgrade. Some proxy servers/load balancers
+        # might mess with it.
+        if self.request.headers.get("Connection", "").lower().find('upgrade') == -1:
+            self.stream.write(tornado.escape.utf8(
+                "HTTP/1.1 400 Bad Request\r\n\r\n"
+                "\"Connection\" must be \"Upgrade\"."
+            ))
+            self.stream.close()
+            return
+
+        super(WebSocketTransport, self)._execute(transforms, *args, **kwargs)
 
     def open(self, session_id):
         self.session = self.server.create_session(session_id, register=False)
@@ -55,20 +89,17 @@ class WebSocketTransport(WebSocketHandler):
         if not message:
             return
 
-        print '>>>', message
-
         try:
-            msg = proto.json_load(message)
+            msg = proto.json_decode(message)
 
-            print 'DUMP', msg
-
-            # TODO: Verify
+            # TODO: Clean me up
             if isinstance(msg, list):
                 for m in msg:
                     self.session.on_message(m)
             else:
                 self.session.on_message(msg)
-        except Exception:
+        except Exception, ex:
+            print ex
             # Close session on exception
             self.close()
 
@@ -79,12 +110,9 @@ class WebSocketTransport(WebSocketHandler):
             self.session.close()
             self.session = None
 
-            print 'Closed'
-
     def send_pack(self, message):
         # Send message
         try:
-            print '<<<', message
             self.write_message(message)
         except IOError:
             if self.client_terminated:

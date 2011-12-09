@@ -35,10 +35,14 @@ class JSONPTransport(xhr.XhrPollingTransport):
             self.session.flush()
 
     def send_pack(self, message):
-        msg = '%s(%s);\r\n' % (self.callback, proto.json_dumps(message))
+        # TODO: Just escape
+        msg = '%s(%s);\r\n' % (self.callback, proto.json_encode(message))
 
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
         self.set_header('Content-Length', len(msg))
+
+        # TODO: Fix me
+        self.set_header('Etag', 'dummy')
 
         self.write(msg)
 
@@ -69,17 +73,13 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
 
             data = urllib.unquote_plus(data[2:])
 
-        print '$$$$', ctype, data
-
         if not data:
             self.write("Payload expected.")
             self.set_status(500)
             return
 
         try:
-            messages = proto.json_load(data)
-
-            print 'xxxx', messages
+            messages = proto.json_decode(data)
         except:
             # TODO: Proper error handling
             self.write("Broken JSON encoding.")

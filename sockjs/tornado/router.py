@@ -52,6 +52,12 @@ TRANSPORTS = {
     'htmlfile': transports.HtmlFileTransport
 }
 
+STATIC_HANDLERS = {
+    '/chunking_test': static.ChunkingTestHandler,
+    '/iframe[0-9-.a-z_]*.html': static.IFrameHandler,
+    '/?': static.GreetingsHandler
+}
+
 
 class SockJSRouter(object):
     def __init__(self,
@@ -102,13 +108,9 @@ class SockJSRouter(object):
                 )
 
         # Generate static URLs
-        # TODO: Move me out
-        self._transport_urls.append(((r'%s/iframe[0-9-.a-z_]*.html' % prefix),
-                                    static.IFrameHandler,
-                                    dict(server=self)))
-        self._transport_urls.append((prefix + '/?',
-                                    static.GreetingsHandler,
-                                    dict(server=self)))
+        map(self._transport_urls.append,
+            (('%s%s' % (prefix, k), v, dict(server=self))
+            for k, v in STATIC_HANDLERS.iteritems()))
 
     @property
     def urls(self):

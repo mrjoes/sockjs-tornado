@@ -185,8 +185,13 @@ class Session(sessioncontainer.SessionBase):
         `msg`
             Message to send
         """
-        self.send_queue.append(msg)
-        self.flush()
+        assert isinstance(msg, basestring), 'Can only send strings'
+
+        if self.handler and not self.send_queue:
+            self.handler.send_pack(proto.encode_single_message(msg))
+        else:
+            self.send_queue.append(msg)
+            self.flush()
 
     def flush(self):
         """Flush message queue if there's an active connection running"""

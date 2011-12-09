@@ -1,6 +1,6 @@
 import datetime
 
-from tornado.web import RequestHandler
+from tornado.web import asynchronous, RequestHandler
 
 CACHE_TIME = 31536000
 
@@ -27,3 +27,41 @@ class BaseHandler(RequestHandler):
 
         self.set_cookie('JSESSIONID', cv)
 
+
+class PreflightHandler(BaseHandler):
+    """CORS preflight handler"""
+
+    @asynchronous
+    def options(self, *args, **kwargs):
+        """XHR cross-domain OPTIONS handler"""
+        self.enable_cache()
+        self.handle_session_cookie()
+        self.preflight()
+
+        if self.verify_origin():
+            self.set_status(204)
+
+            self.set_header('Access-Control-Allow-Methods', 'OPTIONS, POST')
+            self.set_header('Allow', 'OPTIONS, POST')
+        else:
+            # Set forbidden
+            self.set_status(403)
+
+        self.finish()
+
+    def preflight(self):
+        """Handles request authentication"""
+        origin = self.request.headers.get('Origin', '*')
+
+        self.set_header('Access-Control-Allow-Origin', origin)
+
+        headers = self.request.headers.get('Access-Control-Allow-Headers')
+        if headers:
+            self.set_header('Access-Control-Allow-Header', headers)
+
+        self.set_header('Access-Control-Allow-Credentials', 'true')
+
+    def verify_origin(self):
+        """Verify if request can be served"""
+        # TODO: Verify origin
+        return True

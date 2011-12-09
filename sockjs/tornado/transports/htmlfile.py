@@ -55,7 +55,8 @@ class HtmlFileTransport(pollingbase.PollingTransportBase):
             self.session.flush()
 
     def send_pack(self, message):
-        self.write('<script>\np(%s);\n</script>\r\n' % proto.json_dumps(message))
+        # TODO: Just do escaping
+        self.write('<script>\np(%s);\n</script>\r\n' % proto.json_encode(message))
         self.flush()
 
         # TODO: Close connection based on amount of data transferred
