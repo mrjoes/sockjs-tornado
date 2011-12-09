@@ -1,9 +1,6 @@
-import time
-
 from tornado import web, httpserver, ioloop
 
 from sockjs.tornado import SockJSRouter, SockJSConnection
-from sockjs.tornado.transports.pollingbase import PreflightHandler
 
 
 class EchoConnection(SockJSConnection):
