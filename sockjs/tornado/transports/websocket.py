@@ -44,7 +44,9 @@ class WebSocketTransport(WebSocketHandler):
 
             # Connection header should be upgrade. Some proxy servers/load balancers
             # might mess with it.
-            if self.request.headers.get("Connection", "").lower().find('upgrade') == -1:
+            headers = self.request.headers
+            connection = map(lambda s: s.strip().lower(), headers.get("Connection", "").split(","))
+            if 'upgrade' not in connection:
                 self.stream.write(tornado.escape.utf8(
                     "HTTP/1.1 400 Bad Request\r\n\r\n"
                     "\"Connection\" must be \"Upgrade\"."
