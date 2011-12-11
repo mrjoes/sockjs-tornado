@@ -73,7 +73,7 @@ class SockJSRouter(object):
         # Sessions
         self._sessions = sessioncontainer.SessionContainer()
 
-        check_interval = self.settings['session_check_interval']
+        check_interval = self.settings['session_check_interval'] * 1000
         self._sessions_cleanup = ioloop.PeriodicCallback(self._sessions.expire,
                                                          check_interval,
                                                          self.io_loop)
