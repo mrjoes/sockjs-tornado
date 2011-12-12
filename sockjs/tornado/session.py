@@ -181,7 +181,7 @@ class Session(sessioncontainer.SessionBase):
 
         if self._immediate_flush:
             if self.handler and not self.send_queue:
-                self.handler.send_pack(proto.encode_single_message(msg))
+                self.handler.send_pack('a[%s]' % msg)
             else:
                 if self.send_queue:
                     self.send_queue += ','
@@ -207,8 +207,7 @@ class Session(sessioncontainer.SessionBase):
         if not self.send_queue:
             return
 
-        self.handler.send_pack(proto.encode_message(self.send_queue))
-
+        self.handler.send_pack('a[%s]' % self.send_queue)
         self.send_queue = ''
 
     # Close connection with all endpoints or just one endpoint

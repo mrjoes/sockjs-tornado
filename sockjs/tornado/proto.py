@@ -37,7 +37,3 @@ HEARTBEAT = 'h'
 # Various protocol helpers
 def disconnect(code, reason):
     return 'c[%d,"%s"]' % (code, reason)
-
-
-def encode_message(msg):
-    return 'a[%s]' % msg

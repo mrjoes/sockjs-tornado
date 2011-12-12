@@ -7,54 +7,14 @@
 """
 import logging
 
-import tornado.escape
-from tornado import stack_context
-from tornado.websocket import WebSocketHandler
-
-from sockjs.tornado import proto
+from sockjs.tornado import proto, websocket
 
 
-class WebSocketTransport(WebSocketHandler):
+class WebSocketTransport(websocket.WebSocketHandler):
     """Websocket transport"""
     def initialize(self, server):
         self.server = server
         self.session = None
-
-    # Additional verification of the websocket handshake
-    # For now it will stay here, till https://github.com/facebook/tornado/pull/415
-    # is merged.
-    def _execute(self, transforms, *args, **kwargs):
-        with stack_context.ExceptionStackContext(self._handle_websocket_exception):
-            # Websocket only supports GET method
-            if self.request.method != 'GET':
-                self.stream.write(tornado.escape.utf8(
-                    "HTTP/1.1 405 Method Not Allowed\r\n\r\n"
-                ))
-                self.stream.close()
-                return
-
-            # Upgrade header should be present and should be equal to WebSocket
-            if self.request.headers.get("Upgrade", "").lower() != 'websocket':
-                self.stream.write(tornado.escape.utf8(
-                    "HTTP/1.1 400 Bad Request\r\n\r\n"
-                    "Can \"Upgrade\" only to \"WebSocket\"."
-                ))
-                self.stream.close()
-                return
-
-            # Connection header should be upgrade. Some proxy servers/load balancers
-            # might mess with it.
-            headers = self.request.headers
-            connection = map(lambda s: s.strip().lower(), headers.get("Connection", "").split(","))
-            if 'upgrade' not in connection:
-                self.stream.write(tornado.escape.utf8(
-                    "HTTP/1.1 400 Bad Request\r\n\r\n"
-                    "\"Connection\" must be \"Upgrade\"."
-                ))
-                self.stream.close()
-                return
-
-            super(WebSocketTransport, self)._execute(transforms, *args, **kwargs)
 
     def open(self, session_id):
         self.session = self.server.create_session(session_id, register=False)
@@ -126,11 +86,3 @@ class WebSocketTransport(WebSocketHandler):
             logging.debug('Exception', exc_info=True)
         finally:
             self._detach()
-
-    def _handle_websocket_exception(self, type, value, traceback):
-        if type is IOError:
-            self.server.io_loop.add_callback(self.on_connection_close)
-
-            # raise (type, value, traceback)
-            logging.debug('Exception', exc_info=(type, value, traceback))
-            return True

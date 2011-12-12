@@ -29,9 +29,8 @@ setup(
     license=license,
     description='SockJS pyton server implementation on top of Tornado framework',
     long_description=readme,
-    requires=['simplejson', 'tornado'],
+    requires=['tornado'],
     install_requires=[
-        'simplejson >= 2.1.0',
-        'tornado >= 2.0.0'
+        'tornado >= 2.1.1'
     ]
 )
