@@ -39,9 +39,5 @@ def disconnect(code, reason):
     return 'c[%d,"%s"]' % (code, reason)
 
 
-def encode_messages(messages):
-    return 'a%s' % json_encode(messages)
-
-
-def encode_single_message(msg):
-    return 'a[%s]' % json_encode(msg)
+def encode_message(msg):
+    return 'a[%s]' % msg

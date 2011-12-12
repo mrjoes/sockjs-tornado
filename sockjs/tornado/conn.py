@@ -5,6 +5,7 @@
 
     SockJS connection interface
 """
+from sockjs.tornado import proto
 
 
 class SockJSConnection(object):
@@ -55,13 +56,15 @@ class SockJSConnection(object):
         `message`
             Message to send.
         """
-        if self.is_closed:
-            return
+        if not self.is_closed:
+            self.session.send_message(proto.json_encode(message))
 
-        if not isinstance(message, basestring):
-            message = unicode(message)
+    def broadcast(self, clients, message):
+        msg = proto.json_encode(message)
 
-        self.session.send_message(message)
+        for c in clients:
+            if not c.is_closed:
+                c.session.send_message(msg)
 
     def close(self):
         self.session.close()

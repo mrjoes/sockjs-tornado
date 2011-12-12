@@ -68,7 +68,7 @@ class Session(sessioncontainer.SessionBase):
         super(Session, self).__init__(session_id, expiry)
 
         self.server = server
-        self.send_queue = []
+        self.send_queue = ''
 
         self.handler = None
         self.state = CONNECTING
@@ -172,7 +172,7 @@ class Session(sessioncontainer.SessionBase):
         """Send message
 
         `msg`
-            Message to send
+            JSON encoded string to send
         """
         assert isinstance(msg, basestring), 'Can only send strings'
 
@@ -183,10 +183,15 @@ class Session(sessioncontainer.SessionBase):
             if self.handler and not self.send_queue:
                 self.handler.send_pack(proto.encode_single_message(msg))
             else:
-                self.send_queue.append(msg)
+                if self.send_queue:
+                    self.send_queue += ','
+                self.send_queue += msg
+
                 self.flush()
         else:
-            self.send_queue.append(msg)
+            if self.send_queue:
+                self.send_queue += ','
+            self.send_queue += msg
 
             if not self._pending_flush:
                 self.server.io_loop.add_callback(self.flush)
@@ -202,9 +207,9 @@ class Session(sessioncontainer.SessionBase):
         if not self.send_queue:
             return
 
-        self.handler.send_pack(proto.encode_messages(self.send_queue))
+        self.handler.send_pack(proto.encode_message(self.send_queue))
 
-        self.send_queue = []
+        self.send_queue = ''
 
     # Close connection with all endpoints or just one endpoint
     def close(self):

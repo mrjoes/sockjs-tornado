@@ -13,8 +13,7 @@ class EchoConnection(SockJSConnection):
         self.clients.add(self)
 
     def on_message(self, msg):
-        for n in self.clients:
-            n.send(msg)
+        self.broadcast(self.clients, msg)
 
     def on_close(self):
         self.clients.remove(self)
