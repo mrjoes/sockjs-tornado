@@ -13,7 +13,9 @@ class EchoConnection(SockJSConnection):
         self.clients.add(self)
 
     def on_message(self, msg):
-        self.broadcast(self.clients, msg)
+        #self.broadcast(self.clients, msg)
+        for c in self.clients:
+            c.send(msg)
 
     def on_close(self):
         self.clients.remove(self)
@@ -28,7 +30,7 @@ if __name__ == '__main__':
     if len(sys.argv) > 1:
         options['immediate_flush'] = False
 
-    EchoRouter = SockJSRouter(EchoConnection, '/echo', options)
+    EchoRouter = SockJSRouter(EchoConnection, '/broadcast', options)
 
     app = web.Application(EchoRouter.urls)
 

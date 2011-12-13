@@ -15,6 +15,7 @@ import (
 	"rand"
 	"flag"
 	"runtime"
+	"syscall"
 )
 
 type Stats struct
@@ -45,14 +46,19 @@ const WARMUP_TIME int64 = 1
 const TEST_TIME int64 = 10
 
 func SockJSClient(client_id int, cs chan *Stats) {
+	ws, err := websocket.Dial("ws://localhost:8080/broadcast/0/0/websocket", "", "http://localhost/");
+
 	// Error handler
 	defer func() {
+		if ws != nil {
+			ws.Close()
+		}
+
 		if r := recover(); r != nil {
 			cs <- nil
 		}
-	}()
+	}()	
 
-	ws, err := websocket.Dial("ws://localhost:8080/echo/0/0/websocket", "", "http://localhost/");
 	if err != nil {
 		panic("Dial: " + err.String())
 	}
@@ -205,5 +211,8 @@ func main() {
 					max_ping / 1000000,
 					avg_ping,
 					errors)
+
+		// Give it time to settle
+		syscall.Sleep(5 * 1000000000)
 	}
 }

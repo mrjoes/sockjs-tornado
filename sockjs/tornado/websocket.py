@@ -30,6 +30,7 @@ import time
 import base64
 import tornado.escape
 import tornado.web
+import socket
 
 from tornado import stack_context, websocket
 from tornado.util import bytes_type, b
@@ -70,6 +71,8 @@ class WebSocketHandler(websocket.WebSocketHandler):
                 ))
                 self.stream.close()
                 return
+
+            #self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
             # Handle proper protocol version
             if self.request.headers.get("Sec-WebSocket-Version") in ("7", "8", "13"):

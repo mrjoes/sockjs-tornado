@@ -48,11 +48,7 @@ func clientReceiver(ch chan string, ws *websocket.Conn) {
 }
 
 func clientSender(client_id int, ch chan bool, result chan *Stats) {
-
-	ws, err := websocket.Dial("ws://localhost:8080/echo/0/0/websocket", "", "http://localhost/");
-	if err != nil {
-		panic("Dial: " + err.String())
-	}
+	ws, err := websocket.Dial("ws://localhost:8080/broadcast/0/0/websocket", "", "http://localhost/");
 
 	defer func() {
 		if ws != nil {
@@ -64,6 +60,10 @@ func clientSender(client_id int, ch chan bool, result chan *Stats) {
 		}
 	}()
 
+	if err != nil {
+		panic("Dial: " + err.String())
+	}
+
 	reader := make(chan string)
 
 	go clientReceiver(reader, ws)
@@ -71,6 +71,8 @@ func clientSender(client_id int, ch chan bool, result chan *Stats) {
 	if handshake := <-reader; handshake != "o" {
 		panic("Invalid handshake!")
 	}
+
+	ch <- true
 
 	need_finish := false
 	num_pending := 0
@@ -149,7 +151,7 @@ func clientSender(client_id int, ch chan bool, result chan *Stats) {
 }
 
 var numCores = flag.Int("n", 1, "num of CPU cores to use")
-var msgPerSec = flag.Int64("m", 2000, "number of messages per second")
+var msgPerSec = flag.Int64("m", 100, "number of messages per second")
 var msgTotal = flag.Int("t", 10000, "number of messages to send")
 
 // Entry point
@@ -160,7 +162,7 @@ func main() {
 	runtime.GOMAXPROCS(*numCores)
 
 	// Number of clients to add for each ramp
-	ramps := []int{100,200,300,500,1000}
+	ramps := []int{5,25,50,100,200,300,500,1000}
 
 	for i := 0; i < len(ramps); i++ {
 		num_clients := ramps[i]
@@ -172,6 +174,11 @@ func main() {
 			channels[j] = make(chan bool)
 			go clientSender(rand.Int(), channels[j], stats)
 		}
+
+		// Wait for all clients to start
+		for j := 0; j < num_clients; j++ {
+			<- channels[j]
+		}		
 
 		var msg_delay int64 = 1000000000 / *msgPerSec
 		var time_slot int64 = msg_delay
