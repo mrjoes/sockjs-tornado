@@ -8,6 +8,7 @@
 
 import datetime
 import socket
+import logging
 
 from tornado.web import asynchronous, RequestHandler
 
@@ -43,6 +44,7 @@ class BaseHandler(RequestHandler):
             # We don't want to raise IOError exception if finish() call fails.
             # It can happen if connection is set to Keep-Alive, but client
             # closes connection, socket exception will be raised.
+            logging.debug('Ignoring socket.error in safe_finish()')
             pass
 
 
