@@ -22,7 +22,7 @@ setup(
     version='0.0.1',
     author='Serge S. Koval',
     author_email='serge.koval@gmail.com',
-    packages=['sockjs.tornado'],
+    packages=['sockjs', 'sockjs.tornado', 'sockjs.tornado.transports'],
     namespace_packages=['sockjs'],
     scripts=[],
     url='http://github.com/MrJoes/sockjs-tornado/',
