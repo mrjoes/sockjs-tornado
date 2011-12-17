@@ -43,7 +43,7 @@ class BaseHandler(RequestHandler):
         except socket.error:
             # We don't want to raise IOError exception if finish() call fails.
             # It can happen if connection is set to Keep-Alive, but client
-            # closes connection, socket exception will be raised.
+            # closes connection after receiving response.
             logging.debug('Ignoring socket.error in safe_finish()')
             pass
 
