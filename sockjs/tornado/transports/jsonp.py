@@ -42,6 +42,10 @@ class JSONPTransport(xhr.XhrPollingTransport):
         else:
             self.session.flush()
 
+    def post(self, session_id):
+        self.set_status(405)
+        self.finish()
+
     def send_pack(self, message):
         # TODO: Just escape
         msg = '%s(%s);\r\n' % (self.callback, proto.json_encode(message))
@@ -56,7 +60,7 @@ class JSONPTransport(xhr.XhrPollingTransport):
 
         self._detach()
 
-        self.finish()
+        self.safe_finish()
 
 
 class JSONPSendHandler(pollingbase.PollingTransportBase):
@@ -75,6 +79,8 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
         ctype = self.request.headers.get('Content-Type', '').lower()
         if ctype == 'application/x-www-form-urlencoded':
             if not data.startswith('d='):
+                logging.exception('jsonp_send: Invalid payload.')
+
                 self.write("Payload expected.")
                 self.set_status(500)
                 return
@@ -82,6 +88,8 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             data = urllib.unquote_plus(data[2:])
 
         if not data:
+            logging.debug('jsonp_send: Payload expected.')
+
             self.write("Payload expected.")
             self.set_status(500)
             return
@@ -90,6 +98,8 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             messages = proto.json_decode(data)
         except:
             # TODO: Proper error handling
+            logging.debug('jsonp_send: Invalid json encoding')
+
             self.write("Broken JSON encoding.")
             self.set_status(500)
             return
@@ -98,9 +108,11 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             for m in messages:
                 session.on_message(m)
         except Exception:
-            logging.exception('JSONP incoming')
+            logging.exception('jsonp_send: on_message() failed')
+
             session.close()
 
+            self.write('Message handler failed.')
             self.set_status(500)
             return
 

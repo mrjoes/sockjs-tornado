@@ -7,6 +7,7 @@
 """
 
 import datetime
+import socket
 
 from tornado.web import asynchronous, RequestHandler
 
@@ -34,6 +35,15 @@ class BaseHandler(RequestHandler):
             cv = cookie.value
 
         self.set_cookie('JSESSIONID', cv)
+
+    def safe_finish(self):
+        try:
+            self.finish()
+        except socket.error:
+            # We don't want to raise IOError exception if finish() call fails.
+            # It can happen if connection is set to Keep-Alive, but client
+            # closes connection, socket exception will be raised.
+            pass
 
 
 class PreflightHandler(BaseHandler):

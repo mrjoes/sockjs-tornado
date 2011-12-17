@@ -40,7 +40,7 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
 
         self._detach()
 
-        self.finish()
+        self.safe_finish()
 
 
 class XhrSendHandler(pollingbase.PollingTransportBase):
