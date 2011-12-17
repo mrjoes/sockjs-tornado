@@ -57,7 +57,7 @@ class SockJSRouter(object):
                  io_loop=None):
         # TODO: Version check
         if version_info[0] < 2:
-            raise Exception('TornadIO2 requires Tornado 2.0 or higher.')
+            raise Exception('sockjs-tornado requires Tornado 2.0 or higher.')
 
         # Store connection class
         self._connection = connection
