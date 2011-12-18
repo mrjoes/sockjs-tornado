@@ -46,11 +46,11 @@ class BroadcastConnection(SockJSConnection):
 
 class AmplifyConnection(SockJSConnection):
     def on_message(self, msg):
-        n = math.floor(float(msg))
+        n = int(msg)
         if n < 0 or n > 19:
             n = 1
 
-        self.send('x' * (math.pow(2, n) + 1))
+        self.send('x' * int(math.pow(2, n)))
 
 if __name__ == '__main__':
     import logging
@@ -72,5 +72,5 @@ if __name__ == '__main__':
                           BroadcastRouter.urls
                           )
 
-    app.listen(8080)
+    app.listen(8081)
     ioloop.IOLoop.instance().start()
