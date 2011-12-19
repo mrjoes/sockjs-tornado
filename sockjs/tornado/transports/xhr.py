@@ -14,6 +14,8 @@ from sockjs.tornado.transports import pollingbase
 
 
 class XhrPollingTransport(pollingbase.PollingTransportBase):
+    name = 'xhr'
+
     @asynchronous
     def post(self, session_id):
         # Start response
@@ -49,8 +51,6 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
 
 
 class XhrSendHandler(pollingbase.PollingTransportBase):
-    name = 'xhr-polling'
-
     def post(self, session_id):
         self.preflight()
         self.handle_session_cookie()

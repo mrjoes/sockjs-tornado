@@ -12,6 +12,8 @@ from sockjs.tornado.transports import pollingbase
 
 
 class EventSourceTransport(pollingbase.PollingTransportBase):
+    name = 'eventsource'
+
     @asynchronous
     def get(self, session_id):
         # Start response

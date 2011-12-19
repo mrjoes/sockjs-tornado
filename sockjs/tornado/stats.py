@@ -1,4 +1,3 @@
-from datetime import datetime
 from collections import deque
 
 from tornado import ioloop
@@ -56,6 +55,10 @@ class StatsCollector(object):
         # Sessions
         self.sess_active = 0
 
+        # Avoid circular reference
+        from sockjs.tornado import router
+        self.sess_transports = dict((x, 0) for x in router.TRANSPORTS.iterkeys())
+
         # Connections
         self.conn_active = 0
         self.conn_ps = MovingAverage()
@@ -76,7 +79,7 @@ class StatsCollector(object):
         self.pack_recv_ps.flush()
 
     def dump(self):
-        return dict(
+        data = dict(
             # Sessions
             sessions_active=self.sess_active,
 
@@ -89,7 +92,20 @@ class StatsCollector(object):
             packets_recv_ps=self.pack_recv_ps.last_average
             )
 
+        for k, v in self.sess_transports.iteritems():
+            data['transp_' + k] = v
+
+        return data
+
     # Various event callbacks
+    def on_sess_opened(self, transport):
+        self.sess_active += 1
+        self.sess_transports[transport] += 1
+
+    def on_sess_closed(self, transport):
+        self.sess_active -= 1
+        self.sess_transports[transport] -= 1
+
     def on_conn_opened(self):
         self.conn_active += 1
         self.conn_ps.add(1)

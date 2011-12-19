@@ -31,6 +31,8 @@ HTMLFILE_HEAD += '\r\n\r\n'
 
 
 class HtmlFileTransport(pollingbase.PollingTransportBase):
+    name = 'htmlfile'
+
     @asynchronous
     def get(self, session_id):
         # Start response

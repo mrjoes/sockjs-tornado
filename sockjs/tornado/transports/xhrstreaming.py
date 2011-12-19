@@ -12,7 +12,7 @@ from sockjs.tornado.transports import pollingbase
 
 
 class XhrStreamingTransport(pollingbase.PollingTransportBase):
-    name = 'xhr-streaming'
+    name = 'xhr_streaming'
 
     @asynchronous
     def post(self, session_id):

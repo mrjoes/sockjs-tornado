@@ -131,6 +131,8 @@ class Session(sessioncontainer.SessionBase):
         self.handler = handler
         self.promote()
 
+        self.transport_name = self.handler.name
+
         if start_heartbeat:
             self.start_heartbeat()
 
@@ -152,7 +154,7 @@ class Session(sessioncontainer.SessionBase):
             self.handler.send_pack(proto.CONNECT)
 
             # Bump stats
-            self.stats.sess_active += 1
+            self.stats.on_sess_opened(self.transport_name)
 
             # Call on_open handler
             self.conn.on_open(info)
@@ -228,7 +230,7 @@ class Session(sessioncontainer.SessionBase):
                 self.state = CLOSED
 
                 # Bump stats
-                self.stats.sess_active -= 1
+                self.stats.on_sess_closed(self.transport_name)
 
         if self.handler is not None:
             self.handler.send_pack(proto.disconnect(3000, 'Go away!'))

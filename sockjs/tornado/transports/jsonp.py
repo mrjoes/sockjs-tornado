@@ -11,10 +11,12 @@ import logging
 from tornado.web import asynchronous
 
 from sockjs.tornado import proto
-from sockjs.tornado.transports import pollingbase, xhr
+from sockjs.tornado.transports import pollingbase
 
 
-class JSONPTransport(xhr.XhrPollingTransport):
+class JSONPTransport(pollingbase.PollingTransportBase):
+    name = 'jsonp'
+
     @asynchronous
     def get(self, session_id):
         # Start response
@@ -41,9 +43,6 @@ class JSONPTransport(xhr.XhrPollingTransport):
             self.session.start_heartbeat()
         else:
             self.session.flush()
-
-    def post(self, session_id):
-        self.set_status(405)
 
     def send_pack(self, message):
         try:

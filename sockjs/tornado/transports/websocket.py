@@ -12,6 +12,8 @@ from sockjs.tornado import proto, websocket
 
 class WebSocketTransport(websocket.WebSocketHandler):
     """Websocket transport"""
+    name = 'websocket'
+
     def initialize(self, server):
         self.server = server
         self.session = None
@@ -31,9 +33,6 @@ class WebSocketTransport(websocket.WebSocketHandler):
 
         if self.session:
             self.session.flush()
-
-    def on_connection_close(self):
-        super(WebSocketTransport, self).on_connection_close()
 
     def _detach(self):
         if self.session is not None:
