@@ -71,6 +71,7 @@ class JSONPTransport(xhr.XhrPollingTransport):
 class JSONPSendHandler(pollingbase.PollingTransportBase):
     def post(self, session_id):
         self.preflight()
+        self.handle_session_cookie()
 
         session = self._get_session(session_id)
 
@@ -122,4 +123,5 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             return
 
         self.write('ok')
+        self.set_header('Content-Type', 'text/plain; charset=UTF-8')
         self.set_status(200)
