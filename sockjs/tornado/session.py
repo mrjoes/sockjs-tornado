@@ -223,6 +223,9 @@ class Session(sessioncontainer.SessionBase):
             self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
             self.handler.session_closed()
 
+    def delayed_close(self):
+        self.server.io_loop.add_callback(self.close)
+
     @property
     def is_closed(self):
         """Check if session was closed"""

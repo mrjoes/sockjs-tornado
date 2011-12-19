@@ -32,7 +32,13 @@ class XhrStreamingTransport(pollingbase.PollingTransportBase):
             self.session.flush()
 
     def send_pack(self, message):
-        self.write(message + '\n')
-        self.flush()
+        try:
+            self.write(message + '\n')
+            self.flush()
+        except IOError:
+            # If connection dropped, make sure we close offending session instead
+            # of propagating error all way up.
+            self._detach()
+            self.session.delayed_close()
 
         # TODO: Close connection based on amount of data transferred

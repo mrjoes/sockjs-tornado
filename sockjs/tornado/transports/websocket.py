@@ -73,7 +73,7 @@ class WebSocketTransport(websocket.WebSocketHandler):
             if self.client_terminated:
                 logging.debug('Dropping active websocket connection due to IOError.')
 
-            # Close on next tick to prevent calling connections on_close
+            # Close on next tick to prevent calling on_close
             # as a result of send() message call
             self.server.io_loop.add_callback(self.on_close)
 

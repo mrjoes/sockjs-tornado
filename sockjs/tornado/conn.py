@@ -50,7 +50,7 @@ class SockJSConnection(object):
         """Default on_close handler."""
         pass
 
-    def write_message(self, message):
+    def send(self, message):
         """Send message to the client.
 
         `message`
