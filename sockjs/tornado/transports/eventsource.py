@@ -37,7 +37,7 @@ class EventSourceTransport(pollingbase.PollingTransportBase):
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.
-            self._detach()
             self.session.delayed_close()
+            self._detach()
 
         # TODO: Close connection based on amount of data transferred
