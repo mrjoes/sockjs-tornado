@@ -90,11 +90,9 @@ class WebSocketHandler(websocket.WebSocketHandler):
                 self.ws_connection.accept_connection()
 
     def _handle_websocket_exception(self, type, value, traceback):
+        # Silently ignore IOError, because tornado will call on_close for us
+        # and we don't want to spam log with Tracebacks
         if type is IOError:
-            self.server.io_loop.add_callback(self.on_connection_close)
-
-            # raise (type, value, traceback)
-            logging.debug('Exception', exc_info=(type, value, traceback))
             return True
 
 

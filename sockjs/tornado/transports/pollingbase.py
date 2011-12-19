@@ -63,4 +63,5 @@ class PollingTransportBase(PreflightHandler):
 
     def on_connection_close(self):
         """Called by Tornado, when connection was closed"""
+        # Detach session
         self._detach()

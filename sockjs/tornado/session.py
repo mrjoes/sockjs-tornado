@@ -68,6 +68,7 @@ class Session(sessioncontainer.SessionBase):
         super(Session, self).__init__(session_id, expiry)
 
         self.server = server
+        self.stats = server.stats
         self.send_queue = ''
 
         self.handler = None
@@ -84,6 +85,9 @@ class Session(sessioncontainer.SessionBase):
 
         self._immediate_flush = self.server.settings['immediate_flush']
         self._pending_flush = False
+
+        # Bump stats
+        self.stats.sess_active += 1
 
     # Session callbacks
     def on_delete(self, forced):
@@ -179,8 +183,11 @@ class Session(sessioncontainer.SessionBase):
         if isinstance(msg, unicode):
             msg = msg.encode('utf-8')
 
+        self.stats.on_pack_sent(1)
+
         if self._immediate_flush:
             if self.handler and not self.send_queue:
+                # Send message right away
                 self.handler.send_pack('a[%s]' % msg)
             else:
                 if self.send_queue:
@@ -214,10 +221,16 @@ class Session(sessioncontainer.SessionBase):
     def close(self):
         """Close session or endpoint connection.
         """
-        try:
-            self.conn.on_close()
-        finally:
-            self.state = CLOSED
+        if not self.is_closed:
+            try:
+                self.conn.on_close()
+            except:
+                logging.debug("Failed to call on_close().", exc_info=True)
+            finally:
+                self.state = CLOSED
+
+                # Bump stats
+                self.stats.sess_active -= 1
 
         if self.handler is not None:
             self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
@@ -260,6 +273,8 @@ class Session(sessioncontainer.SessionBase):
             self.stop_heartbeat()
 
     # Message handler
-    def on_message(self, msg):
-        # TODO: Optimize me
-        self.conn.on_message(msg)
+    def on_messages(self, msg_list):
+        self.stats.on_pack_recv(len(msg_list))
+
+        for msg in msg_list:
+            self.conn.on_message(msg)

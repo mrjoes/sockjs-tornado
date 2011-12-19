@@ -8,7 +8,7 @@
 
 from tornado import ioloop, version_info
 
-from sockjs.tornado import transports, session, sessioncontainer, static
+from sockjs.tornado import transports, session, sessioncontainer, static, stats
 
 
 DEFAULT_SETTINGS = {
@@ -78,6 +78,9 @@ class SockJSRouter(object):
                                                          check_interval,
                                                          self.io_loop)
         self._sessions_cleanup.start()
+
+        # Stats
+        self.stats = stats.StatsCollector(self.io_loop)
 
         # Initialize URLs
         base = prefix + r'/[^/.]+/(?P<session_id>[^/.]+)'

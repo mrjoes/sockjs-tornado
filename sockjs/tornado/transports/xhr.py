@@ -77,8 +77,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
             return
 
         try:
-            for m in messages:
-                session.on_message(m)
+            session.on_messages(messages)
         except Exception:
             logging.exception('XHR incoming')
             session.close()
