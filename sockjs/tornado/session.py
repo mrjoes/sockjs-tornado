@@ -183,8 +183,6 @@ class Session(sessioncontainer.SessionBase):
         if isinstance(msg, unicode):
             msg = msg.encode('utf-8')
 
-        self.stats.on_pack_sent(1)
-
         if self._immediate_flush:
             if self.handler and not self.send_queue:
                 # Send message right away
