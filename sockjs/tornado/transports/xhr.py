@@ -25,7 +25,7 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
             return
 
         # Might get already detached because connection was closed in on_open
-        if self.detached:
+        if not self.session:
             return
 
         if not self.session.send_queue:

@@ -14,10 +14,9 @@ from sockjs.tornado.basehandler import PreflightHandler
 class PollingTransportBase(PreflightHandler):
     """Polling transport handler base class"""
     def initialize(self, server):
-        self.server = server
+        super(PollingTransportBase, self).initialize(server)
+
         self.session = None
-        self.detached = False
-        self.logged = False
 
     def _get_session(self, session_id):
         return self.server.get_session(session_id)
@@ -44,12 +43,6 @@ class PollingTransportBase(PreflightHandler):
         if self.session:
             self.session.remove_handler(self)
             self.session = None
-            self.detached = True
-
-    @asynchronous
-    def post(self, session_id):
-        """Default GET handler."""
-        raise NotImplementedError()
 
     def check_xsrf_cookie(self):
         pass
@@ -62,23 +55,7 @@ class PollingTransportBase(PreflightHandler):
         """Called by the session when it was closed"""
         self._detach()
 
-    # Stats
-    def prepare(self):
-        self.logged = True
-
-        self.server.stats.on_conn_opened()
-
-    def _log_disconnect(self):
-        if self.logged:
-            self.logged = False
-            self.server.stats.on_conn_closed()
-
-    def finish(self):
-        self._log_disconnect()
-
-        super(PollingTransportBase, self).finish()
-
     def on_connection_close(self):
-        """Called by Tornado, when connection was closed"""
-        self._log_disconnect()
         self._detach()
+
+        super(PollingTransportBase, self).on_connection_close()

@@ -86,9 +86,6 @@ class Session(sessioncontainer.SessionBase):
         self._immediate_flush = self.server.settings['immediate_flush']
         self._pending_flush = False
 
-        # Bump stats
-        self.stats.sess_active += 1
-
     # Session callbacks
     def on_delete(self, forced):
         """Session expiration callback
@@ -153,6 +150,9 @@ class Session(sessioncontainer.SessionBase):
 
             # Send CONNECT message
             self.handler.send_pack(proto.CONNECT)
+
+            # Bump stats
+            self.stats.sess_active += 1
 
             # Call on_open handler
             self.conn.on_open(info)
@@ -234,7 +234,10 @@ class Session(sessioncontainer.SessionBase):
 
         if self.handler is not None:
             self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
-            self.handler.session_closed()
+
+            # Handler might be detached already
+            if self.handler:
+                self.handler.session_closed()
 
     def delayed_close(self):
         self.server.io_loop.add_callback(self.close)

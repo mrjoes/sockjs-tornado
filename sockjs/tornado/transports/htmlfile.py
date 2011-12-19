@@ -57,7 +57,7 @@ class HtmlFileTransport(pollingbase.PollingTransportBase):
             return
 
         # Flush any pending messages
-        if not self.detached:
+        if self.session:
             self.session.flush()
 
     def send_pack(self, message):

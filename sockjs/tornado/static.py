@@ -33,17 +33,6 @@ IFRAME_TEXT = '''<!DOCTYPE html>
 
 class IFrameHandler(BaseHandler):
     """IFrame page handler"""
-
-    def initialize(self, server):
-        self.server = server
-
-    # Statistics
-    def prepare(self):
-        self.server.stats.on_conn_opened()
-
-    def on_connection_close(self):
-        self.server.stats.on_conn_closed()
-
     def get(self):
         data = IFRAME_TEXT % self.server.settings['sockjs_url']
 
@@ -89,14 +78,6 @@ class ChunkingTestHandler(PreflightHandler):
         self.server = server
         self.step = 0
         self.io_loop = server.io_loop
-
-    # Statistics
-    def prepare(self):
-        self.server.stats.on_conn_opened()
-
-    def on_connection_close(self):
-        self.server.stats.on_conn_closed()
-
 
     @asynchronous
     def post(self):
