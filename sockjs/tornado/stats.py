@@ -67,6 +67,7 @@ class StatsCollector(object):
         self._callback = ioloop.PeriodicCallback(self._update,
                                                  1000,
                                                  io_loop)
+        self._callback.start()
 
     def _update(self):
         self.conn_ps.flush()

@@ -17,6 +17,9 @@ class WebSocketTransport(websocket.WebSocketHandler):
         self.session = None
 
     def open(self, session_id):
+        # Stats
+        self.server.stats.on_conn_opened()
+
         # Handle session
         self.session = self.server.create_session(session_id, register=False)
 
@@ -28,6 +31,12 @@ class WebSocketTransport(websocket.WebSocketHandler):
 
         if self.session:
             self.session.flush()
+
+    def on_connection_close(self):
+        # Stats
+        self.server.stats.on_conn_closed()
+
+        super(WebSocketTransport, self).on_connection_close()
 
     def _detach(self):
         if self.session is not None:
