@@ -28,12 +28,12 @@ SockJS-tornado API
 ------------------
 
 SockJS provides slightly different API than _tornado.websocket_. Main differences are:
-1. Depending on transport, actual client connection might or might not be there. So, there is no _self.request_ and
-   other _tornado.web.RequestHandler_ properties.
-2. Changed _open_ callback name to _on\_open_ to be more consistent with other callbacks.
-3. Instead of _write\_message_, all messages are sent using _send_ method. Just in case, _send_ in _tornado.web.RequestHandler_
-   sends raw data over the connection, without encoding it.
-4. There is handy _broadcast_ function, which accepts list (or iterator) of clients and message to send.
+1.  Depending on transport, actual client connection might or might not be there. So, there is no _self.request_ and
+    other _tornado.web.RequestHandler_ properties.
+2.  Changed _open_ callback name to _on\_open_ to be more consistent with other callbacks.
+3.  Instead of _write\_message_, all messages are sent using _send_ method. Just in case, _send_ in _tornado.web.RequestHandler_
+    sends raw data over the connection, without encoding it.
+4.  There is handy _broadcast_ function, which accepts list (or iterator) of clients and message to send.
 
 Settings
 --------
@@ -52,7 +52,7 @@ Following options are supported:
     </tr>
     <tr>
         <td>session_check_interval</td>
-        <td>How often are session verified, in seconds. Lower the value, more resources sockjs-tornado will use to drop expired sessions, but will be more precise.</td>
+        <td>How often sessions are verified, in seconds. Lower the value, more resources sockjs-tornado will use to drop expired sessions, but will be more precise.</td>
         <td>1</td>
     </tr>
     <tr>
