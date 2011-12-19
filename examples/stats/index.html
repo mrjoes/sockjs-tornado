@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  <script src="http://cdn.sockjs.org/sockjs-0.1.2.min.js"></script>
+  <script>
+    $(function() {
+      var timer = null;
+      var sent = 0;
+      var recv = 0;
+
+      function refresh() {
+        $('#msg').text('Sent: ' + sent + ' Recv: ' + recv);
+      }
+
+      var conn = new SockJS('http://localhost:8080/broadcast');
+
+      conn.onopen = function() {
+        function sendPing()
+        {
+          sent += 1;
+          refresh();
+
+          conn.send('msg');
+
+          timer = setTimeout(sendPing, 100);
+        }
+        timer = setTimeout(sendPing, 100);
+      };
+
+      conn.onmessage = function(e) {
+        recv += 1;
+      }
+
+      conn.onclose = function() {
+        if (timer != null) {
+          clearTimeout(timer);
+          timer = null;
+        }
+      };
+    });
+</script>
+</head>
+<body>
+<h3>Broadcast Ping!</h3>
+<div id="msg"></div>
+</body>
+</html>

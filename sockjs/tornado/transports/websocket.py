@@ -33,9 +33,6 @@ class WebSocketTransport(websocket.WebSocketHandler):
             self.session.flush()
 
     def on_connection_close(self):
-        # Stats
-        self.server.stats.on_conn_closed()
-
         super(WebSocketTransport, self).on_connection_close()
 
     def _detach(self):
@@ -63,6 +60,9 @@ class WebSocketTransport(websocket.WebSocketHandler):
     def on_close(self):
         # Close session if websocket connection was closed
         if self.session is not None:
+            # Stats
+            self.server.stats.on_conn_closed()
+
             # Remove session handler
             self.session.remove_handler(self)
 

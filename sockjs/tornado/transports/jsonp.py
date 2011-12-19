@@ -44,7 +44,6 @@ class JSONPTransport(xhr.XhrPollingTransport):
 
     def post(self, session_id):
         self.set_status(405)
-        self.finish()
 
     def send_pack(self, message):
         try:

@@ -17,6 +17,7 @@ class PollingTransportBase(PreflightHandler):
         self.server = server
         self.session = None
         self.detached = False
+        self.logged = False
 
     def _get_session(self, session_id):
         return self.server.get_session(session_id)
@@ -63,10 +64,21 @@ class PollingTransportBase(PreflightHandler):
 
     # Stats
     def prepare(self):
+        self.logged = True
+
         self.server.stats.on_conn_opened()
+
+    def _log_disconnect(self):
+        if self.logged:
+            self.logged = False
+            self.server.stats.on_conn_closed()
+
+    def finish(self):
+        self._log_disconnect()
+
+        super(PollingTransportBase, self).finish()
 
     def on_connection_close(self):
         """Called by Tornado, when connection was closed"""
-        # Detach session
-        self.server.stats.on_conn_closed()
+        self._log_disconnect()
         self._detach()
