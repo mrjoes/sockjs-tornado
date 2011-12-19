@@ -28,6 +28,7 @@ SockJS-tornado API
 ------------------
 
 SockJS provides slightly different API than _tornado.websocket_. Main differences are:
+
 1.  Depending on transport, actual client connection might or might not be there. So, there is no _self.request_ and
     other _tornado.web.RequestHandler_ properties.
 2.  Changed _open_ callback name to _on\_open_ to be more consistent with other callbacks.
