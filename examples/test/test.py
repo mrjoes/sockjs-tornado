@@ -73,4 +73,5 @@ if __name__ == '__main__':
                           )
 
     app.listen(8081)
+    logging.info(" [*] Listening on 0.0.0.0:8081")
     ioloop.IOLoop.instance().start()
