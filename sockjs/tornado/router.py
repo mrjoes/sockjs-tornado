@@ -23,6 +23,10 @@ DEFAULT_SETTINGS = {
     'disabled_transports': [],
     # SockJS location
     'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.1.2.min.js',
+    # Max response body size
+    'response_limit': 128 * 1024,
+    # Enable or disable JSESSIONID cookie handling
+    'jsessionid': True,
     # Should sockjs-tornado flush messages immediately or queue then and
     # flush on next ioloop tick
     'immediate_flush': True

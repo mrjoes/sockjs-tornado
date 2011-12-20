@@ -51,6 +51,10 @@ class BaseHandler(RequestHandler):
         self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
 
     def handle_session_cookie(self):
+        # If JSESSIONID support is disabled in the settings, ignore cookie logic
+        if not self.server.settings['jsessionid']:
+            return
+
         cookie = self.cookies.get('JSESSIONID')
 
         if not cookie:
