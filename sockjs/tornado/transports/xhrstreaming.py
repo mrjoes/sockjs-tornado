@@ -42,6 +42,6 @@ class XhrStreamingTransport(streamingbase.StreamingTransportBase):
             self._detach()
 
         # Close connection based on amount of data transferred
-        if self.should_finish(len(message)):
+        if self.should_finish(len(message) + 1):
             self._detach()
             self.safe_finish()

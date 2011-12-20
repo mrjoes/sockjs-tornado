@@ -66,9 +66,11 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             self.session.flush()
 
     def send_pack(self, message):
+        # TODO: Just do escaping
+        msg = '<script>\np(%s);\n</script>\r\n' % proto.json_encode(message)
+
         try:
-            # TODO: Just do escaping
-            self.write('<script>\np(%s);\n</script>\r\n' % proto.json_encode(message))
+            self.write(msg)
             self.flush()
         except IOError:
             # If connection dropped, make sure we close offending session instead
@@ -77,6 +79,6 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             self._detach()
 
         # Close connection based on amount of data transferred
-        if self.should_finish(len(message)):
+        if self.should_finish(len(msg)):
             self._detach()
             self.safe_finish()

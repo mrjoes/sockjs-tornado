@@ -33,8 +33,10 @@ class EventSourceTransport(streamingbase.StreamingTransportBase):
             self.session.flush()
 
     def send_pack(self, message):
+        msg = 'data: %s\r\n\r\n' % message
+
         try:
-            self.write('data: %s\r\n\r\n' % message)
+            self.write(msg)
             self.flush()
         except IOError:
             # If connection dropped, make sure we close offending session instead
@@ -43,6 +45,6 @@ class EventSourceTransport(streamingbase.StreamingTransportBase):
             self._detach()
 
         # Close connection based on amount of data transferred
-        if self.should_finish(len(message)):
+        if self.should_finish(len(msg)):
             self._detach()
             self.safe_finish()
