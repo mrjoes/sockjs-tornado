@@ -25,7 +25,9 @@ DEFAULT_SETTINGS = {
     'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.1.2.min.js',
     # Should sockjs-tornado flush messages immediately or queue then and
     # flush on next ioloop tick
-    'immediate_flush': True
+    'immediate_flush': True,
+    # Enable or disable Nagle for persistent transports
+    'disable_nagle': False, 
     }
 
 GLOBAL_HANDLERS = [

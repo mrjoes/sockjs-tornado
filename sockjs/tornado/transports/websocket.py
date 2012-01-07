@@ -6,6 +6,7 @@
     Websocket transport implementation
 """
 import logging
+import socket
 
 from sockjs.tornado import proto, websocket
 
@@ -21,6 +22,10 @@ class WebSocketTransport(websocket.WebSocketHandler):
     def open(self, session_id):
         # Stats
         self.server.stats.on_conn_opened()
+
+        # Disable nagle
+        if self.server.settings['disable_nagle']:
+            self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
         # Handle session
         self.session = self.server.create_session(session_id, register=False)
