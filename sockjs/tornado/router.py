@@ -29,7 +29,9 @@ DEFAULT_SETTINGS = {
     'jsessionid': True,
     # Should sockjs-tornado flush messages immediately or queue then and
     # flush on next ioloop tick
-    'immediate_flush': True
+    'immediate_flush': True,
+    # Enable or disable Nagle for persistent transports
+    'disable_nagle': False, 
     }
 
 GLOBAL_HANDLERS = [
