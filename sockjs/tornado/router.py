@@ -31,7 +31,7 @@ DEFAULT_SETTINGS = {
     # flush on next ioloop tick
     'immediate_flush': True,
     # Enable or disable Nagle for persistent transports
-    'disable_nagle': False, 
+    'disable_nagle': False
     }
 
 GLOBAL_HANDLERS = [
@@ -50,6 +50,7 @@ TRANSPORTS = {
 
 STATIC_HANDLERS = {
     '/chunking_test': static.ChunkingTestHandler,
+    '/info': static.InfoHandler,
     '/iframe[0-9-.a-z_]*.html': static.IFrameHandler,
     '/?': static.GreetingsHandler
 }
@@ -75,6 +76,9 @@ class SockJSRouter(object):
         self.settings = DEFAULT_SETTINGS.copy()
         if user_settings:
             self.settings.update(user_settings)
+
+        self.websockets_enabled = 'websocket' not in self.settings['disabled_transports']
+        self.cookie_needed = self.settings['jsessionid']
 
         # Sessions
         self._sessions = sessioncontainer.SessionContainer()

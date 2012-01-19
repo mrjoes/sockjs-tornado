@@ -12,3 +12,9 @@ class StreamingTransportBase(pollingbase.PollingTransportBase):
 
         if self.amount_limit <= 0:
             return True
+
+    def session_closed(self):
+        """Called by the session when it was closed"""
+        self._detach()
+
+        self.safe_finish()

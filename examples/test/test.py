@@ -7,6 +7,9 @@ from sockjs.tornado import SockJSRouter, SockJSConnection
 
 
 class EchoConnection(SockJSConnection):
+    def on_open(self, info):
+        print 'OPEN'
+
     def on_message(self, msg):
         self.send(msg)
 
@@ -56,7 +59,8 @@ if __name__ == '__main__':
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
 
-    EchoRouter = SockJSRouter(EchoConnection, '/echo')
+    EchoRouter = SockJSRouter(EchoConnection, '/echo',
+                            user_settings=dict(response_limit=4096))
     WSOffRouter = SockJSRouter(EchoConnection, '/disabled_websocket_echo',
                             user_settings=dict(disabled_transports=['websocket']))
     CloseRouter = SockJSRouter(CloseConnection, '/close')

@@ -8,10 +8,13 @@
 
 import time
 import hashlib
+import random
+import sys
 
 from tornado.web import asynchronous
 
 from sockjs.tornado.basehandler import BaseHandler, PreflightHandler
+from sockjs.tornado.proto import json_encode
 
 IFRAME_TEXT = '''<!DOCTYPE html>
 <html>
@@ -108,3 +111,21 @@ class ChunkingTestHandler(PreflightHandler):
                 pass
 
         self.io_loop.add_timeout(time.time() + self.steps[0], run_step)
+
+
+class InfoHandler(PreflightHandler):
+    """SockJS 0.2 /info handler"""
+    def initialize(self, server):
+        self.server = server
+
+    def get(self):
+        self.preflight()
+        self.disable_cache()
+        self.set_header('Content-Type', 'application/json; charset=UTF-8')
+
+        options = dict(websocket=self.server.websockets_enabled,
+                       cookie_needed=self.server.cookie_needed,
+                       origins=['*:*'],
+                       entropy=random.randint(0, sys.maxint))
+
+        self.write(json_encode(options))
