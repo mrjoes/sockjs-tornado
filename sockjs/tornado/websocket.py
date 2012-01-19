@@ -92,6 +92,9 @@ class WebSocketHandler(websocket.WebSocketHandler):
         if type is IOError:
             return True
 
+    def abort_connection(self):
+        self.ws_connection._abort()
+
 
 class WebSocketProtocol8(websocket.WebSocketProtocol):
     """Implementation of the WebSocket protocol, version 8 (draft version 10).

@@ -25,10 +25,10 @@ class ConnectionInfo(object):
     `arguments`
         Collection of the query string arguments
     """
-    def __init__(self, ip, arguments, cookies):
-        self.ip = ip
-        self.cookies = cookies
-        self.arguments = arguments
+    def __init__(self, handler):
+        self.ip = handler.request.remote_ip
+        self.cookies = handler.request.cookies
+        self.arguments = handler.request.arguments
 
     def get_argument(self, name):
         """Return single argument by name"""
@@ -132,6 +132,7 @@ class BaseSession(sessioncontainer.SessionBase):
         self.handler = handler
         self.promote()
 
+        # TODO: Remove and provide proper method to get transport name
         self.transport_name = self.handler.name
 
         if start_heartbeat:
@@ -142,11 +143,10 @@ class BaseSession(sessioncontainer.SessionBase):
     def verify_state(self):
         # Verify connection state
         if self.state == CONNECTING:
-            self.remote_ip = self.handler.request.remote_ip
+            # Get and store connection information
+            info = ConnectionInfo(self.handler)
 
-            info = ConnectionInfo(self.handler.request.remote_ip,
-                      self.handler.request.arguments,
-                      self.handler.request.cookies)
+            self.remote_ip = info.ip
 
             # Change state
             self.state = OPEN

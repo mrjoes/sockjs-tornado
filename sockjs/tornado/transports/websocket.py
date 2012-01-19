@@ -58,10 +58,16 @@ class WebSocketTransport(websocket.WebSocketHandler):
                 self.session.on_messages((msg,))
         except Exception:
             logging.exception('WebSocket')
+
             # Close session on exception
-            self.close()
+            #self.session.close()
+
+            # Close running connection
+            self.abort_connection()
 
     def on_close(self):
+        print 'ON CLOSE', repr(self.session)
+
         # Close session if websocket connection was closed
         if self.session is not None:
             # Stats
@@ -86,6 +92,7 @@ class WebSocketTransport(websocket.WebSocketHandler):
             self.server.io_loop.add_callback(self.on_close)
 
     def session_closed(self):
+        print 'SESSION CLOSED'
         # If session was closed by the application, terminate websocket
         # connection as well.
         try:
