@@ -52,6 +52,7 @@ STATIC_HANDLERS = {
     '/chunking_test': static.ChunkingTestHandler,
     '/info': static.InfoHandler,
     '/iframe[0-9-.a-z_]*.html': static.IFrameHandler,
+    '/websocket': transports.RawWebSocketTransport,
     '/?': static.GreetingsHandler
 }
 
@@ -151,3 +152,6 @@ class SockJSRouter(object):
         """Get session by session id
         """
         return self._sessions.get(session_id)
+
+    def get_connection_class(self):
+        return self._connection

@@ -8,3 +8,4 @@ from .websocket import WebSocketTransport
 from .xhrstreaming import XhrStreamingTransport
 from .eventsource import EventSourceTransport
 from .htmlfile import HtmlFileTransport
+from .rawwebsocket import RawWebSocketTransport

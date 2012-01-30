@@ -59,6 +59,9 @@ class StatsCollector(object):
         from sockjs.tornado import router
         self.sess_transports = dict((x, 0) for x in router.TRANSPORTS.iterkeys())
 
+        # Special case for raw websocket
+        self.sess_transports['rawwebsocket'] = 0
+
         # Connections
         self.conn_active = 0
         self.conn_ps = MovingAverage()

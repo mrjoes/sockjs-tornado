@@ -8,36 +8,44 @@
 import logging
 import socket
 
-from sockjs.tornado import proto, websocket
+from sockjs.tornado import proto, websocket, session
 
 
-class WebSocketTransport(websocket.WebSocketHandler):
-    """Websocket transport"""
-    name = 'websocket'
+class RawSession(session.BaseSession):
+    def send_message(self, msg):
+        # TODO: Optimize - get rid of double JSON encoding?
+        decoded = proto.json_decode(msg)
+
+        if not isinstance(decoded, basestring):
+            raise Exception('Can only send strings over raw websocket transport')
+
+        self.handler.send_pack(decoded)
+
+    def on_message(self, msg):
+        self.conn.on_message(msg.decode('utf-8'))
+
+
+class RawWebSocketTransport(websocket.WebSocketHandler):
+    """Raw Websocket transport"""
+    name = 'rawwebsocket'
 
     def initialize(self, server):
         self.server = server
         self.session = None
 
-    def open(self, session_id):
+    def open(self):
         # Stats
         self.server.stats.on_conn_opened()
 
         # Disable nagle
-        if self.server.settings['disable_nagle']:
-            self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        #if self.server.settings['disable_nagle']:
+        self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
         # Handle session
-        self.session = self.server.create_session(session_id, register=False)
+        self.session = RawSession(self.server.get_connection_class(), self.server)
 
-        if not self.session.set_handler(self):
-            self.close()
-            return
-
+        self.session.set_handler(self)
         self.session.verify_state()
-
-        if self.session:
-            self.session.flush()
 
     def _detach(self):
         if self.session is not None:
@@ -50,19 +58,12 @@ class WebSocketTransport(websocket.WebSocketHandler):
             return
 
         try:
-            msg = proto.json_decode(message)
-
-            if isinstance(msg, list):
-                self.session.on_messages(msg)
-            else:
-                self.session.on_messages((msg,))
+            self.session.on_message(message)
         except Exception:
-            logging.exception('WebSocket')
-
-            # Close session on exception
-            #self.session.close()
+            logging.exception('RawWebSocket')
 
             # Close running connection
+            self._detach()
             self.abort_connection()
 
     def on_close(self):
@@ -85,8 +86,6 @@ class WebSocketTransport(websocket.WebSocketHandler):
             self.server.io_loop.add_callback(self.on_close)
 
     def session_closed(self):
-        # If session was closed by the application, terminate websocket
-        # connection as well.
         try:
             self.close()
         except IOError:

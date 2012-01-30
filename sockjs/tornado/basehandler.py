@@ -86,8 +86,9 @@ class PreflightHandler(BaseHandler):
         self.preflight()
 
         if self.verify_origin():
-            self.set_header('Access-Control-Allow-Methods', 'OPTIONS, POST')
-            self.set_header('Allow', 'OPTIONS, POST')
+            allowed_methods = getattr(self, 'access_methods', 'OPTIONS, POST')
+            self.set_header('Access-Control-Allow-Methods', allowed_methods)
+            self.set_header('Allow', allowed_methods)
 
             self.set_status(204)
         else:

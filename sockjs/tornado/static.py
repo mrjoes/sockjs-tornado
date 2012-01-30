@@ -117,6 +117,7 @@ class InfoHandler(PreflightHandler):
     """SockJS 0.2 /info handler"""
     def initialize(self, server):
         self.server = server
+        self.access_methods = 'OPTIONS, GET'
 
     def get(self):
         self.preflight()

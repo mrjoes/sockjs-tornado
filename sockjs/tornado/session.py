@@ -49,7 +49,90 @@ CLOSING = 2
 CLOSED = 3
 
 
-class BaseSession(sessioncontainer.SessionBase):
+class BaseSession(object):
+    def __init__(self, conn, server):
+        self.server = server
+        self.stats = server.stats
+
+        self.handler = None
+        self.state = CONNECTING
+
+        self.conn_info = None
+
+        self.conn = conn(self)
+
+        self.close_reason = None
+
+    def set_handler(self, handler):
+        if self.handler is not None:
+            raise Exception('Attempted to overwrite BaseSession handler')
+
+        self.handler = handler
+        self.transport_name = self.handler.name
+
+        if self.conn_info is None:
+            self.conn_info = ConnectionInfo(handler)
+            self.stats.on_sess_opened(self.transport_name)
+
+        return True
+
+    def verify_state(self):
+        if self.state == CONNECTING:
+            self.state = OPEN
+
+            self.conn.on_open(self.conn_info)
+
+    def remove_handler(self, handler):
+        """Remove active handler from the session
+
+        `handler`
+            Handler to remove
+        """
+        # Attempt to remove another handler
+        if self.handler != handler:
+            raise Exception('Attempted to remove invalid handler')
+
+        self.handler = None
+
+    def close(self, code=3000, message='Go away!'):
+        """Close session or endpoint connection.
+        """
+        if self.state != CLOSED:
+            try:
+                self.conn.on_close()
+            except:
+                logging.debug("Failed to call on_close().", exc_info=True)
+            finally:
+                self.state = CLOSED
+                self.close_reason = (code, message)
+
+            # Bump stats
+            self.stats.on_sess_closed(self.transport_name)
+
+            # If we have active handler, notify that session was closed
+            if self.handler is not None:
+                self.handler.session_closed()
+
+    def delayed_close(self):
+        self.state = CLOSING
+        self.server.io_loop.add_callback(self.close)
+
+    def get_close_reason(self):
+        if self.close_reason:
+            return self.close_reason
+
+        return (3000, 'Go away!')
+
+    @property
+    def is_closed(self):
+        """Check if session was closed"""
+        return self.state == CLOSED or self.state == CLOSING
+
+    def send_message(self, msg):
+        raise NotImplemented()
+
+
+class Session(BaseSession, sessioncontainer.SessionMixin):
     """SockJS session implementation.
     """
 
@@ -66,19 +149,10 @@ class BaseSession(sessioncontainer.SessionBase):
             Session expiry time
         """
         # Initialize session
-        super(BaseSession, self).__init__(session_id, expiry)
+        sessioncontainer.SessionMixin.__init__(self, session_id, expiry)
+        BaseSession.__init__(self, conn, server)
 
-        self.server = server
-        self.stats = server.stats
         self.send_queue = ''
-
-        self.handler = None
-        self.state = CONNECTING
-
-        self.remote_ip = None
-
-        # Create connection instance
-        self.conn = conn(self)
 
         # Heartbeat related stuff
         self._heartbeat_timer = None
@@ -113,27 +187,26 @@ class BaseSession(sessioncontainer.SessionBase):
             handler.send_pack(proto.disconnect(2010, "Another connection still open"))
             return False
 
-        if self.state == OPEN:
+        if self.conn_info is not None:
             # If IP address doesn't match - refuse connection
-            if handler.request.remote_ip != self.remote_ip:
+            if handler.request.remote_ip != self.conn_info.ip:
                 logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
                               self.session_id,
-                              self.remote_ip,
+                              self.conn_info.ip,
                               self.handler.request.remote_ip
                               ))
 
                 handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
                 return False
-        elif self.state == CLOSING or self.state == CLOSED:
-            handler.send_pack(proto.disconnect(3000, "Go away!"))
+
+        if self.state == CLOSING or self.state == CLOSED:
+            handler.send_pack(proto.disconnect(*self.get_close_reason()))
             return False
 
         # Associate handler and promote session
-        self.handler = handler
-        self.promote()
+        super(Session, self).set_handler(handler)
 
-        # TODO: Remove and provide proper method to get transport name
-        self.transport_name = self.handler.name
+        self.promote()
 
         if start_heartbeat:
             self.start_heartbeat()
@@ -141,104 +214,19 @@ class BaseSession(sessioncontainer.SessionBase):
         return True
 
     def verify_state(self):
-        # Verify connection state
+        # If we're in CONNECTING state - send 'o' message to the client
         if self.state == CONNECTING:
-            # Get and store connection information
-            info = ConnectionInfo(self.handler)
-
-            self.remote_ip = info.ip
-
-            # Change state
-            self.state = OPEN
-
-            # Send CONNECT message
             self.handler.send_pack(proto.CONNECT)
 
-            # Bump stats
-            self.stats.on_sess_opened(self.transport_name)
-
-            # Call on_open handler
-            self.conn.on_open(info)
+        # Call parent implementation
+        super(Session, self).verify_state()
 
     def remove_handler(self, handler):
-        """Remove active handler from the session
+        super(Session, self).remove_handler(handler)
 
-        `handler`
-            Handler to remove
-        """
-        # Attempt to remove another handler
-        if self.handler != handler:
-            raise Exception('Attempted to remove invalid handler')
-
-        self.handler = None
         self.promote()
-
         self.stop_heartbeat()
 
-    def send_message(self, msg):
-        raise NotImplemented()
-
-    def flush(self):
-        pass
-
-    # Close connection with all endpoints or just one endpoint
-    def close(self):
-        """Close session or endpoint connection.
-        """
-        if self.state != CLOSED:
-            try:
-                self.conn.on_close()
-            except:
-                logging.debug("Failed to call on_close().", exc_info=True)
-            finally:
-                self.state = CLOSED
-
-            # Bump stats
-            self.stats.on_sess_closed(self.transport_name)
-
-            # If we have active handler, notify that session was closed
-            if self.handler is not None:
-                self.handler.session_closed()
-
-    def delayed_close(self):
-        self.state = CLOSING
-        self.server.io_loop.add_callback(self.close)
-
-    @property
-    def is_closed(self):
-        """Check if session was closed"""
-        return self.state == CLOSED or self.state == CLOSING
-
-    # Heartbeats
-    def start_heartbeat(self):
-        """Reset hearbeat timer"""
-        self.stop_heartbeat()
-
-        self._heartbeat_timer = periodic.Callback(self._heartbeat,
-                                                  self._heartbeat_interval,
-                                                  self.server.io_loop)
-        self._heartbeat_timer.start()
-
-    def stop_heartbeat(self):
-        """Stop active heartbeat"""
-        if self._heartbeat_timer is not None:
-            self._heartbeat_timer.stop()
-            self._heartbeat_timer = None
-
-    def delay_heartbeat(self):
-        """Delay active heartbeat"""
-        if self._heartbeat_timer is not None:
-            self._heartbeat_timer.delay()
-
-    def _heartbeat(self):
-        """Heartbeat callback"""
-        if self.handler is not None:
-            self.handler.send_pack(proto.HEARTBEAT)
-        else:
-            self.stop_heartbeat()
-
-
-class Session(BaseSession):
     def send_message(self, msg):
         """Send message
 
@@ -282,17 +270,46 @@ class Session(BaseSession):
         self.handler.send_pack('a[%s]' % self.send_queue)
         self.send_queue = ''
 
+    def close(self, code=3000, message='Go away!'):
+        """Close session or endpoint connection.
+        """
+        if self.state != CLOSED:
+            # Notify handler
+            if self.handler is not None:
+                self.handler.send_pack(proto.disconnect(code, message))
+
+        super(Session, self).close(code, message)
+
+    # Heartbeats
+    def start_heartbeat(self):
+        """Reset hearbeat timer"""
+        self.stop_heartbeat()
+
+        self._heartbeat_timer = periodic.Callback(self._heartbeat,
+                                                  self._heartbeat_interval,
+                                                  self.server.io_loop)
+        self._heartbeat_timer.start()
+
+    def stop_heartbeat(self):
+        """Stop active heartbeat"""
+        if self._heartbeat_timer is not None:
+            self._heartbeat_timer.stop()
+            self._heartbeat_timer = None
+
+    def delay_heartbeat(self):
+        """Delay active heartbeat"""
+        if self._heartbeat_timer is not None:
+            self._heartbeat_timer.delay()
+
+    def _heartbeat(self):
+        """Heartbeat callback"""
+        if self.handler is not None:
+            self.handler.send_pack(proto.HEARTBEAT)
+        else:
+            self.stop_heartbeat()
+
     def on_messages(self, msg_list):
         self.stats.on_pack_recv(len(msg_list))
 
         for msg in msg_list:
             self.conn.on_message(msg)
-
-    def close(self):
-        if self.state != CLOSED:
-            # Send close packet, if there's active connection running
-            if self.handler is not None:
-                self.handler.send_pack(proto.disconnect(3000, 'Go away!'))
-
-            # Close session
-            super(Session, self).close()

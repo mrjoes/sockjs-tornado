@@ -22,7 +22,8 @@ class XhrStreamingTransport(streamingbase.StreamingTransportBase):
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
 
         # Send prelude and flush any pending messages
-        self.send_pack('h' * 2048)
+        self.write('h' * 2048 + '\n')
+        self.flush()
 
         if not self._attach_session(session_id, False):
             self.finish()

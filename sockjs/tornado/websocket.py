@@ -170,6 +170,7 @@ class WebSocketProtocol8(websocket.WebSocketProtocol):
         else:
             frame = self.STRUCT_BBQ.pack(finbit, 127, l)
         frame += data
+        print 'FRAME', repr(frame)
         self.stream.write(frame)
 
     def write_message(self, message, binary=False):

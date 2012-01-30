@@ -7,9 +7,6 @@ from sockjs.tornado import SockJSRouter, SockJSConnection
 
 
 class EchoConnection(SockJSConnection):
-    def on_open(self, info):
-        print 'OPEN'
-
     def on_message(self, msg):
         self.send(msg)
 

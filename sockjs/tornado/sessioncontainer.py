@@ -20,7 +20,7 @@ def _random_key():
     return i.hexdigest()
 
 
-class SessionBase(object):
+class SessionMixin(object):
     """Represents one session object stored in the session container.
     Derive from this object to store additional data.
     """
