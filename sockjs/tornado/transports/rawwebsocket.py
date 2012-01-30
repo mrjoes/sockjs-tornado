@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    sockjs.tornado.transports.websocket
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    sockjs.tornado.transports.rawwebsocket
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    Websocket transport implementation
+    Raw websocket transport implementation
 """
 import logging
 import socket
@@ -22,7 +22,7 @@ class RawSession(session.BaseSession):
         self.handler.send_pack(decoded)
 
     def on_message(self, msg):
-        self.conn.on_message(msg.decode('utf-8'))
+        self.conn.on_message(msg)
 
 
 class RawWebSocketTransport(websocket.WebSocketHandler):
@@ -37,13 +37,12 @@ class RawWebSocketTransport(websocket.WebSocketHandler):
         # Stats
         self.server.stats.on_conn_opened()
 
-        # Disable nagle
-        #if self.server.settings['disable_nagle']:
-        self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+        # Disable nagle if needed
+        if self.server.settings['disable_nagle']:
+            self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
-        # Handle session
+        # Create and attach to session
         self.session = RawSession(self.server.get_connection_class(), self.server)
-
         self.session.set_handler(self)
         self.session.verify_state()
 

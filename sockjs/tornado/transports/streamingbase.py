@@ -7,6 +7,10 @@ class StreamingTransportBase(pollingbase.PollingTransportBase):
 
         self.amount_limit = self.server.settings['response_limit']
 
+        # HTTP 1.0 client might send keep-alive
+        if hasattr(self.request, 'connection') and not self.request.supports_http_1_1():
+            self.request.connection.no_keep_alive = True
+
     def should_finish(self, data_len):
         self.amount_limit -= data_len
 
