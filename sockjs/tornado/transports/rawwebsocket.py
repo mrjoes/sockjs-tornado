@@ -72,11 +72,9 @@ class RawWebSocketTransport(websocket.WebSocketHandler):
             # Stats
             self.server.stats.on_conn_closed()
 
-            try:
-                # Can blow up if socket is already closed
-                self.session.close()
-            except IOError:
-                pass
+            session = self.session
+            self._detach()
+            session.close()
 
     def send_pack(self, message):
         # Send message
@@ -92,3 +90,7 @@ class RawWebSocketTransport(websocket.WebSocketHandler):
             pass
         finally:
             self._detach()
+
+    # Websocket overrides
+    def allow_draft76(self):
+        return True
