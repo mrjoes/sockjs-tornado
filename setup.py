@@ -19,7 +19,7 @@ except:
 
 setup(
     name='sockjs-tornado',
-    version='0.0.1',
+    version='0.0.2',
     author='Serge S. Koval',
     author_email='serge.koval@gmail.com',
     packages=['sockjs', 'sockjs.tornado', 'sockjs.tornado.transports'],
