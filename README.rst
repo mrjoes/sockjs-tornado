@@ -43,42 +43,6 @@ You can pass various settings to the _SockJSRouter_, in a dictionary::
 
     MyRouter = SockJSRouter(MyConnection, '/my', dict(disabled_transports=['websocket']))
 
-Following options are supported:
-
-<table>
-    <tr>
-        <td>*Name*</td>
-        <td>*Description*</td>
-        <td>*Default Value*</td>
-    </tr>
-    <tr>
-        <td>session_check_interval</td>
-        <td>How often sessions are verified, in seconds. Lower the value, more resources sockjs-tornado will use to drop expired sessions, but will be more precise.</td>
-        <td>1</td>
-    </tr>
-    <tr>
-        <td>disconnect_delay</td>
-        <td>How long does it takes to consider session dead, in seconds.</td>
-        <td>5</td>
-    </tr>
-    <tr>
-        <td>heartbeat_delay</td>
-        <td>How often sockjs-tornado should send heartbeats to the client, in seconds.</td>
-        <td>25</td>
-    </tr>
-    <tr>
-        <td>disabled_transports</td>
-        <td>List of disabled transports. Possible values are: 'websocket', 'xhr', 'xhr_streaming', 'jsonp', 'eventsource' and 'htmlfile'</td>
-        <td>[]</td>
-    </tr>
-    <tr>
-        <td>sockjs_url</td>
-        <td>Location of the sockjs client script. By default points to the SockJS CDN.</td>
-        <td>http://cdn.sockjs.org/sockjs-0.1.2.min.js</td>
-    </tr>
-</table>
-
-
 Deployment
 ----------
 

@@ -31,7 +31,7 @@ DEFAULT_SETTINGS = {
     # flush on next ioloop tick
     'immediate_flush': True,
     # Enable or disable Nagle for persistent transports
-    'disable_nagle': False
+    'disable_nagle': True
     }
 
 GLOBAL_HANDLERS = [
