@@ -3,14 +3,14 @@
 
 .. automodule:: sockjs.tornado.router
 
-.. autoclass:: SockJSRouter
+    .. autoclass:: SockJSRouter
 
-    .. automethod:: __init__
+    .. automethod:: SockJSRouter.__init__
 
     URLs
     ^^^^
 
-    .. automethod:: SockJSRouter.urls
+    .. autoattribute:: SockJSRouter.urls
     .. automethod:: SockJSRouter.apply_routes
 
     Connection

@@ -3,8 +3,8 @@
 
 .. automodule:: sockjs.tornado.basehandler
 
-Base Request Handler
---------------------
+    Base Request Handler
+    --------------------
 
     .. autoclass:: BaseHandler
 
@@ -30,8 +30,8 @@ Base Request Handler
 
     .. automethod:: BaseHandler.safe_finish
 
-Preflight handler
------------------
+    Preflight handler
+    -----------------
 
     .. autoclass:: PreflightHandler
 

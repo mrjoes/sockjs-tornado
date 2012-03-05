@@ -22,4 +22,4 @@
 	^^^^^^^^^^
 
 	.. automethod:: SockJSConnection.close
-	.. autoproperty:: SockJSConnection.is_closed
+	.. autoattribute:: SockJSConnection.is_closed
