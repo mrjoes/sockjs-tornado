@@ -25,10 +25,10 @@ class ConnectionInfo(object):
     `arguments`
         Collection of the query string arguments
     """
-    def __init__(self, handler):
-        self.ip = handler.request.remote_ip
-        self.cookies = handler.request.cookies
-        self.arguments = handler.request.arguments
+    def __init__(self, ip, cookies, arguments):
+        self.ip = ip
+        self.cookies = cookies
+        self.arguments = arguments
 
     def get_argument(self, name):
         """Return single argument by name"""
@@ -73,7 +73,7 @@ class BaseSession(object):
         self.transport_name = self.handler.name
 
         if self.conn_info is None:
-            self.conn_info = ConnectionInfo(handler)
+            self.conn_info = handler.get_conn_info()
             self.stats.on_sess_opened(self.transport_name)
 
         return True
@@ -142,8 +142,8 @@ class BaseSession(object):
         count = 0
 
         for c in clients:
-            if not c.is_closed:
-                sess = c.session
+            sess = c.session
+            if not sess.is_closed():
                 if sess.send_expects_json:
                     if json_msg is None:
                         json_msg = proto.json_encode(msg)

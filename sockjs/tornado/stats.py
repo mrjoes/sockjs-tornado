@@ -56,11 +56,7 @@ class StatsCollector(object):
         self.sess_active = 0
 
         # Avoid circular reference
-        from sockjs.tornado import router
-        self.sess_transports = dict((x, 0) for x in router.TRANSPORTS.iterkeys())
-
-        # Special case for raw websocket
-        self.sess_transports['rawwebsocket'] = 0
+        self.sess_transports = dict()
 
         # Connections
         self.conn_active = 0
@@ -103,6 +99,10 @@ class StatsCollector(object):
     # Various event callbacks
     def on_sess_opened(self, transport):
         self.sess_active += 1
+
+        if transport not in self.sess_transports:
+            self.sess_transports[transport] = 0
+
         self.sess_transports[transport] += 1
 
     def on_sess_closed(self, transport):

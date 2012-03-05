@@ -9,6 +9,7 @@ import logging
 import socket
 
 from sockjs.tornado import proto, websocket, session
+from sockjs.tornado.transports import base
 
 
 class RawSession(session.BaseSession):
@@ -19,7 +20,7 @@ class RawSession(session.BaseSession):
         self.conn.on_message(msg)
 
 
-class RawWebSocketTransport(websocket.WebSocketHandler):
+class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
     """Raw Websocket transport"""
     name = 'rawwebsocket'
 

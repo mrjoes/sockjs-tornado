@@ -9,9 +9,10 @@ import logging
 import socket
 
 from sockjs.tornado import proto, websocket
+from sockjs.tornado.transports import base
 
 
-class WebSocketTransport(websocket.WebSocketHandler):
+class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
     """Websocket transport"""
     name = 'websocket'
 

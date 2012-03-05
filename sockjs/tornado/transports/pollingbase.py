@@ -6,10 +6,11 @@
     Polling transports base
 """
 
-from sockjs.tornado.basehandler import PreflightHandler
+from sockjs.tornado import basehandler
+from sockjs.tornado.transports import base
 
 
-class PollingTransportBase(PreflightHandler):
+class PollingTransportBase(basehandler.PreflightHandler, base.BaseTransportMixin):
     """Polling transport handler base class"""
     def initialize(self, server):
         super(PollingTransportBase, self).initialize(server)
