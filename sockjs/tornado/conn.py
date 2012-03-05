@@ -57,23 +57,10 @@ class SockJSConnection(object):
             Message to send.
         """
         if not self.is_closed:
-            self.session.stats.on_pack_sent(1)
-
-            self.session.send_message(proto.json_encode(message))
+            self.session.send_message(message)
 
     def broadcast(self, clients, message):
-        msg = proto.json_encode(message)
-
-        # We don't want to use len() because clients might be iterator and
-        # not a list.
-        count = 0
-
-        for c in clients:
-            if not c.is_closed:
-                c.session.send_message(msg)
-                count += 1
-
-        self.session.stats.on_pack_sent(count)
+        self.session.broadcast(clients, message)
 
     def close(self):
         self.session.close()

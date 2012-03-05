@@ -54,6 +54,8 @@ class BaseSession(object):
         self.server = server
         self.stats = server.stats
 
+        self.send_expects_json = False
+
         self.handler = None
         self.state = CONNECTING
 
@@ -128,8 +130,30 @@ class BaseSession(object):
         """Check if session was closed"""
         return self.state == CLOSED or self.state == CLOSING
 
-    def send_message(self, msg):
+    def send_message(self, msg, stats=True):
         raise NotImplemented()
+
+    def send_jsonified(self, msg, stats=True):
+        raise NotImplemented()
+
+    def broadcast(self, clients, msg):
+        json_msg = None
+
+        count = 0
+
+        for c in clients:
+            if not c.is_closed:
+                sess = c.session
+                if sess.send_expects_json:
+                    if json_msg is None:
+                        json_msg = proto.json_encode(msg)
+                    sess.send_jsonified(json_msg, False)
+                else:
+                    sess.send_message(msg, False)
+
+                count += 1
+
+        self.stats.on_pack_sent(count)
 
 
 class Session(BaseSession, sessioncontainer.SessionMixin):
@@ -153,6 +177,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         BaseSession.__init__(self, conn, server)
 
         self.send_queue = ''
+        self.send_expects_json = True
 
         # Heartbeat related stuff
         self._heartbeat_timer = None
@@ -227,7 +252,10 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self.promote()
         self.stop_heartbeat()
 
-    def send_message(self, msg):
+    def send_message(self, msg, stats=True):
+        self.send_jsonified(proto.json_encode(msg), stats)
+
+    def send_jsonified(self, msg, stats=True):
         """Send message
 
         `msg`
@@ -256,6 +284,9 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
             if not self._pending_flush:
                 self.server.io_loop.add_callback(self.flush)
                 self._pending_flush = True
+
+        if stats:
+            self.stats.on_pack_sent(1)
 
     def flush(self):
         """Flush message queue if there's an active connection running"""

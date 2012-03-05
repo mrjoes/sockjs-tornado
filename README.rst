@@ -1,8 +1,8 @@
 SockJS-tornado server
 =====================
 
-SockJS-tornado is a Python server side counterpart of [SockJS-client browser library](https://github.com/sockjs/sockjs-client)
-running on top of [Tornado](http://tornadoweb.org>) framework.
+SockJS-tornado is a Python server side counterpart of `SockJS-client browser library <https://github.com/sockjs/sockjs-client>`_
+running on top of `Tornado <http://tornadoweb.org>`_ framework.
 
 Simplified echo SockJS server could look more or less like::
 
@@ -20,9 +20,9 @@ Simplified echo SockJS server could look more or less like::
         app.listen(9999)
         ioloop.IOLoop.instance().start()
 
-(Take look at [examples](https://github.com/MrJoes/sockjs-tornado/tree/master/examples>) for a complete version).
+(Take look at `examples <https://github.com/MrJoes/sockjs-tornado/tree/master/examples>`_ for a complete version).
 
-Subscribe to [SockJS mailing list](https://groups.google.com/forum/#!forum/sockjs>) for discussions and support.
+Subscribe to `SockJS mailing list <https://groups.google.com/forum/#!forum/sockjs>`_ for discussions and support.
 
 SockJS-tornado API
 ------------------
@@ -48,7 +48,7 @@ Deployment
 
 sockjs-tornado properly works behind haproxy and it is recommended deployment approach.
 
-Sample configuration file can be found [here](https://raw.github.com/sockjs/sockjs-node/master/examples/haproxy.cfg).
+Sample configuration file can be found `here <https://raw.github.com/sockjs/sockjs-node/master/examples/haproxy.cfg>`_.
 
 If your log is full of "WARNING: Connection closed by the client", pass _no\_keep\_alive_ as _True_ to _HTTPServer_ constructor::
 

@@ -13,13 +13,7 @@ from sockjs.tornado import proto, websocket, session
 
 class RawSession(session.BaseSession):
     def send_message(self, msg):
-        # TODO: Optimize - get rid of double JSON encoding?
-        decoded = proto.json_decode(msg)
-
-        if not isinstance(decoded, basestring):
-            raise Exception('Can only send strings over raw websocket transport')
-
-        self.handler.send_pack(decoded)
+        self.handler.send_pack(msg)
 
     def on_message(self, msg):
         self.conn.on_message(msg)
