@@ -7,17 +7,20 @@ from sockjs.tornado import SockJSConnection, SockJSRouter
 from multiplex import MultiplexConnection
 
 
+# Index page handler
 class IndexHandler(tornado.web.RequestHandler):
     """Regular HTTP handler to serve the chatroom page"""
     def get(self):
         self.render('index.html')
 
 
+# multiplex.js static handler
 class MultiplexStaticHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('multiplex.js')
 
 
+# Connections
 class AnnConnection(SockJSConnection):
     def on_open(self, info):
         self.send('Ann says hi!!')
@@ -40,18 +43,14 @@ class CarlConnection(SockJSConnection):
 
         self.close()
 
-
-class EchoMultiplexer(MultiplexConnection):
-    channels = dict(ann=AnnConnection,
-                    bob=BobConnection,
-                    carl=CarlConnection)
-
 if __name__ == "__main__":
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
 
-    # Create chat router
+    # Create multiplexer
     router = MultiplexConnection.get(ann=AnnConnection, bob=BobConnection, carl=CarlConnection)
+
+    # Register multiplexer
     EchoRouter = SockJSRouter(router, '/echo')
 
     # Create application

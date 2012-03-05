@@ -74,6 +74,4 @@ class MultiplexConnection(conn.SockJSConnection):
 
     @classmethod
     def get(cls, **kwargs):
-        conn = type('MultiplexRouter', (MultiplexConnection,), dict())
-        conn.channels = kwargs
-        return conn
+        return type('MultiplexRouter', (MultiplexConnection,), dict(channels=kwargs))
