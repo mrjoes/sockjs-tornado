@@ -43,8 +43,7 @@ class MultiplexConnection(conn.SockJSConnection):
 
     def on_message(self, msg):
         parts = msg.split(',', 3)
-        op = parts[0]
-        chan = parts[1]
+        op, chan = parts[0], parts[1]
 
         if chan not in self.channels:
             return

@@ -5,7 +5,6 @@
 
     SockJS connection interface
 """
-from sockjs.tornado import proto
 
 
 class SockJSConnection(object):
@@ -28,17 +27,7 @@ class SockJSConnection(object):
 
         `request`
             ``ConnectionInfo`` object which contains caller IP address, query string
-            parameters and cookies associated with this request.
-
-        For example::
-
-            class MyConnection(SocketConnection):
-                def on_open(self, request):
-                    self.user_id = request.get_argument('id', None)
-
-                    if not self.user_id:
-                        return False
-
+            parameters and cookies associated with this request (if any).
         """
         pass
 
@@ -60,6 +49,16 @@ class SockJSConnection(object):
             self.session.send_message(message)
 
     def broadcast(self, clients, message):
+        """Broadcast message to the one or more clients.
+        Use this method if you want to send same message to lots of clients, as
+        it contains several optimizations and will work fast than just having loop
+        in your code.
+
+        `clients`
+            Clients iterable
+        `message`
+            Message to send.
+        """
         self.session.broadcast(clients, message)
 
     def close(self):
@@ -67,5 +66,5 @@ class SockJSConnection(object):
 
     @property
     def is_closed(self):
-        """Check if session was closed"""
+        """Check if connection was closed"""
         return self.session.is_closed

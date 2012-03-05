@@ -35,7 +35,7 @@ IFRAME_TEXT = '''<!DOCTYPE html>
 
 
 class IFrameHandler(BaseHandler):
-    """IFrame page handler"""
+    """SockJS IFrame page handler"""
     def get(self):
         data = IFRAME_TEXT % self.server.settings['sockjs_url']
 
@@ -59,7 +59,7 @@ class IFrameHandler(BaseHandler):
 
 
 class GreetingsHandler(BaseHandler):
-    """Greetings page handler"""
+    """SockJS greetings page handler"""
 
     def initialize(self, server):
         self.server = server
@@ -72,7 +72,7 @@ class GreetingsHandler(BaseHandler):
 
 
 class ChunkingTestHandler(PreflightHandler):
-    """Chunking test handler"""
+    """SockJS chunking test handler"""
 
     # Step timeouts according to sockjs documentation
     steps = [0.005, 0.025, 0.125, 0.625, 3.125]
@@ -114,7 +114,7 @@ class ChunkingTestHandler(PreflightHandler):
 
 
 class InfoHandler(PreflightHandler):
-    """SockJS 0.2 /info handler"""
+    """SockJS 0.2+ /info handler"""
     def initialize(self, server):
         self.server = server
         self.access_methods = 'OPTIONS, GET'

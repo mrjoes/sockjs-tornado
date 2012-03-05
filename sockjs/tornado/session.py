@@ -50,7 +50,15 @@ CLOSED = 3
 
 
 class BaseSession(object):
+    """Base session implementation class"""
     def __init__(self, conn, server):
+        """Base constructor.
+
+        `conn`
+            Connection class
+        `server`
+            SockJSRouter instance
+        """
         self.server = server
         self.stats = server.stats
 
@@ -66,6 +74,10 @@ class BaseSession(object):
         self.close_reason = None
 
     def set_handler(self, handler):
+        """Set transport handler
+        ``handler``
+            Handler, should derive from the `sockjs.tornado.transports.base.BaseTransportMixin`.
+        """
         if self.handler is not None:
             raise Exception('Attempted to overwrite BaseSession handler')
 
@@ -79,6 +91,7 @@ class BaseSession(object):
         return True
 
     def verify_state(self):
+        """Verify if session was not yet opened. If it is, open it and call connections `on_open`"""
         if self.state == CONNECTING:
             self.state = OPEN
 
@@ -98,6 +111,11 @@ class BaseSession(object):
 
     def close(self, code=3000, message='Go away!'):
         """Close session or endpoint connection.
+
+        `code`
+            Closing code
+        `message`
+            Close message
         """
         if self.state != CLOSED:
             try:
@@ -116,10 +134,19 @@ class BaseSession(object):
                 self.handler.session_closed()
 
     def delayed_close(self):
+        """Delayed close - won't close immediately, but on next ioloop tick."""
         self.state = CLOSING
         self.server.io_loop.add_callback(self.close)
 
     def get_close_reason(self):
+        """Return last close reason tuple.
+
+        For example:
+
+            if self.session.is_closed:
+                code, reason = self.session.get_close_reason()
+
+        """
         if self.close_reason:
             return self.close_reason
 
@@ -127,16 +154,39 @@ class BaseSession(object):
 
     @property
     def is_closed(self):
-        """Check if session was closed"""
+        """Check if session was closed."""
         return self.state == CLOSED or self.state == CLOSING
 
     def send_message(self, msg, stats=True):
+        """Send or queue outgoing message
+
+        `msg`
+            Message to send
+        `stats`
+            If set to True, will update statistics after operation completes
+        """
         raise NotImplemented()
 
     def send_jsonified(self, msg, stats=True):
+        """Send or queue outgoing message which was json-encoded before. Used by the `broadcast`
+        method.
+
+        `msg`
+            JSON-encoded message to send
+        `stats`
+            If set to True, will update statistics after operation completes
+        """
         raise NotImplemented()
 
     def broadcast(self, clients, msg):
+        """Optimized `broadcast` implementation. Depending on type of the session, will json-encode
+        message once and will call either `send_message` or `send_jsonifed`.
+
+        `clients`
+            Clients iterable
+        `msg`
+            Message to send
+        """
         json_msg = None
 
         count = 0
@@ -166,7 +216,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         `conn`
             Default connection class
         `server`
-            Associated server
+            `SockJSRouter` instance
         `session_id`
             Session id
         `expiry`
@@ -206,6 +256,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
 
         `handler`
             Associate active Tornado handler with the session
+        `start_heartbeat`
+            Should session start heartbeat immediately
         """
         # Check if session already has associated handler
         if self.handler is not None:
@@ -239,6 +291,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         return True
 
     def verify_state(self):
+        """Verify if session was not yet opened. If it is, open it and call connections `on_open`"""
         # If we're in CONNECTING state - send 'o' message to the client
         if self.state == CONNECTING:
             self.handler.send_pack(proto.CONNECT)
@@ -247,19 +300,33 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         super(Session, self).verify_state()
 
     def remove_handler(self, handler):
+        """Detach active handler from the session
+
+        `handler`
+            Handler to remove
+        """
         super(Session, self).remove_handler(handler)
 
         self.promote()
         self.stop_heartbeat()
 
     def send_message(self, msg, stats=True):
+        """Send or queue outgoing message
+
+        `msg`
+            Message to send
+        `stats`
+            If set to True, will update statistics after operation completes
+        """
         self.send_jsonified(proto.json_encode(msg), stats)
 
     def send_jsonified(self, msg, stats=True):
-        """Send message
+        """Send JSON-encoded message
 
         `msg`
             JSON encoded string to send
+        `stats`
+            If set to True, will update statistics after operation completes
         """
         assert isinstance(msg, basestring), 'Can only send strings'
 
@@ -302,7 +369,12 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self.send_queue = ''
 
     def close(self, code=3000, message='Go away!'):
-        """Close session or endpoint connection.
+        """Close session.
+
+        `code`
+            Closing code
+        `message`
+            Closing message
         """
         if self.state != CLOSED:
             # Notify handler
@@ -340,6 +412,11 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
             self.stop_heartbeat()
 
     def on_messages(self, msg_list):
+        """Handle incoming messages
+
+        `msg_list`
+            Message list to process
+        """
         self.stats.on_pack_recv(len(msg_list))
 
         for msg in msg_list:

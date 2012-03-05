@@ -78,6 +78,7 @@ class StatsCollector(object):
         self.pack_recv_ps.flush()
 
     def dump(self):
+        """Return dictionary with current statistical information"""
         data = dict(
             # Sessions
             sessions_active=self.sess_active,

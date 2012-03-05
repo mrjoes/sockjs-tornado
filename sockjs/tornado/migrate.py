@@ -3,8 +3,7 @@
     sockjs.tornado.migrate
     ~~~~~~~~~~~~~~~~~~~~~~
 
-    Various migration helpers (from tornado.websocket to sockjs.tornado and
-    vice a versa).
+    `tornado.websocket` to `sockjs.tornado` migration helper.
 """
 
 from sockjs.tornado import conn
@@ -17,9 +16,11 @@ class WebsocketHandler(conn.SockJSConnection):
     only self.request only contains remote_ip, cookies and arguments
     collection"""
     def open(self):
+        """open handler"""
         pass
 
     def on_open(self, info):
+        """sockjs-tornado on_open handler"""
         # Store some properties
         self.remote_ip = info.remote_ip
 
@@ -29,5 +30,5 @@ class WebsocketHandler(conn.SockJSConnection):
         # Call open
         self.open()
 
-# Create write_message link
-WebsocketHandler.write_message = WebsocketHandler.send
+    def write_message(self, msg):
+        self.send(msg)

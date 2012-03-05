@@ -1,0 +1,20 @@
+``sockjs.tornado.router``
+=========================
+
+.. automodule:: sockjs.tornado.router
+
+.. autoclass:: SockJSRouter
+
+    .. automethod:: __init__
+
+    URLs
+    ^^^^
+
+    .. automethod:: SockJSRouter.urls
+    .. automethod:: SockJSRouter.apply_routes
+
+    Connection
+    ^^^^^^^^^^
+
+    .. automethod:: SockJSRouter.get_session
+    .. automethod:: SockJSRouter.get_connection_class

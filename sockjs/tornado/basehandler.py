@@ -16,30 +16,41 @@ CACHE_TIME = 31536000
 
 
 class BaseHandler(RequestHandler):
+    """Base request handler with set of helpers."""
     def initialize(self, server):
+        """Initialize request
+
+        `server`
+            SockJSRouter instance.
+        """
         self.server = server
         self.logged = False
 
     # Statistics
     def prepare(self):
+        """Increment connection count"""
         self.logged = True
         self.server.stats.on_conn_opened()
 
     def _log_disconnect(self):
+        """Decrement connection count"""
         if self.logged:
             self.server.stats.on_conn_closed()
             self.logged = False
 
     def finish(self):
+        """Tornado `finish` handler"""
         self._log_disconnect()
 
         super(BaseHandler, self).finish()
 
     def on_connection_close(self):
+        """Tornado `on_connection_close` handler"""
         self._log_disconnect()
 
     # Various helpers
     def enable_cache(self):
+        """Enable client-side caching for the current request"""
         self.set_header('Cache-Control', 'max-age=%d, public' % CACHE_TIME)
 
         d = datetime.datetime.now() + datetime.timedelta(seconds=CACHE_TIME)
@@ -48,9 +59,11 @@ class BaseHandler(RequestHandler):
         self.set_header('access-control-max-age', CACHE_TIME)
 
     def disable_cache(self):
+        """Disable client-side cache for the current request"""
         self.set_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
 
     def handle_session_cookie(self):
+        """Handle JSESSIONID cookie logic"""
         # If JSESSIONID support is disabled in the settings, ignore cookie logic
         if not self.server.settings['jsessionid']:
             return
@@ -65,6 +78,8 @@ class BaseHandler(RequestHandler):
         self.set_cookie('JSESSIONID', cv)
 
     def safe_finish(self):
+        """Finish session. If it will blow up - connection was set to Keep-Alive and
+        client dropped connection, ignore any IOError or socket error."""
         try:
             self.finish()
         except (socket.error, IOError):

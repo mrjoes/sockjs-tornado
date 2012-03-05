@@ -36,4 +36,11 @@ HEARTBEAT = 'h'
 
 # Various protocol helpers
 def disconnect(code, reason):
+    """Return SockJS packet with code and close reason
+
+    `code`
+        Closing code
+    `reason`
+        Closing reason
+    """
     return 'c[%d,"%s"]' % (code, reason)

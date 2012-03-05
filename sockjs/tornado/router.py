@@ -58,11 +58,24 @@ STATIC_HANDLERS = {
 
 
 class SockJSRouter(object):
+    """SockJS protocol router"""
     def __init__(self,
                  connection,
                  prefix='',
                  user_settings=dict(),
                  io_loop=None):
+        """Constructor.
+
+        `connection`
+            SockJSConnection class
+        `prefix`
+            Connection prefix
+        `user_settings`
+            Settings dictionary
+        `io_loop`
+            Optional IOLoop instance
+        """
+
         # TODO: Version check
         if version_info[0] < 2:
             raise Exception('sockjs-tornado requires Tornado 2.0 or higher.')
@@ -150,8 +163,12 @@ class SockJSRouter(object):
 
     def get_session(self, session_id):
         """Get session by session id
+
+        `session_id`
+            Session id
         """
         return self._sessions.get(session_id)
 
     def get_connection_class(self):
+        """Return associated connection class"""
         return self._connection
