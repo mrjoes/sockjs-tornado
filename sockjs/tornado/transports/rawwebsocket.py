@@ -13,6 +13,8 @@ from sockjs.tornado.transports import base
 
 
 class RawSession(session.BaseSession):
+    """Raw session without any sockjs protocol encoding/decoding. Simply
+    works as a proxy between `SockJSConnection` class and `RawWebSocketTransport`."""
     def send_message(self, msg):
         self.handler.send_pack(msg)
 

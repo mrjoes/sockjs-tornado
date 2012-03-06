@@ -12,6 +12,12 @@ class StreamingTransportBase(pollingbase.PollingTransportBase):
             self.request.connection.no_keep_alive = True
 
     def should_finish(self, data_len):
+        """Check if transport should close long running connection after
+        sending X bytes to the client.
+
+        `data_len`
+            Amount of data that was sent
+        """
         self.amount_limit -= data_len
 
         if self.amount_limit <= 0:

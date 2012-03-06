@@ -115,6 +115,11 @@ class PreflightHandler(BaseHandler):
     def preflight(self):
         """Handles request authentication"""
         origin = self.request.headers.get('Origin', '*')
+
+        # Respond with '*' to 'null' origin
+        if origin == 'null':
+            origin = '*'
+
         self.set_header('Access-Control-Allow-Origin', origin)
 
         headers = self.request.headers.get('Access-Control-Request-Headers')

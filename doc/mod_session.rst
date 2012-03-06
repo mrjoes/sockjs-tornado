@@ -1,10 +1,10 @@
 ``sockjs.tornado.session``
 ==========================
 
-Base Session
-------------
-
 .. automodule:: sockjs.tornado.session
+
+    Base Session
+    ------------
 
     .. autoclass:: BaseSession
 
@@ -36,8 +36,8 @@ Base Session
     .. automethod:: BaseSession.get_close_reason
 
 
-	Connection Session
-	------------------
+    Connection Session
+    ------------------
 
     .. autoclass:: Session
 
