@@ -12,6 +12,7 @@ Topics
    :maxdepth: 2
 
    stats
+   faq
    api
 
 
