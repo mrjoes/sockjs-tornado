@@ -42,7 +42,7 @@ class MultiplexConnection(conn.SockJSConnection):
         self.handler = DummyHandler(self.session.conn_info)
 
     def on_message(self, msg):
-        parts = msg.split(',', 3)
+        parts = msg.split(',', 2)
         op, chan = parts[0], parts[1]
 
         if chan not in self.channels:
