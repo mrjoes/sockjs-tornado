@@ -193,7 +193,7 @@ class BaseSession(object):
 
         for c in clients:
             sess = c.session
-            if not sess.is_closed():
+            if not sess.is_closed:
                 if sess.send_expects_json:
                     if json_msg is None:
                         json_msg = proto.json_encode(msg)
