@@ -8,7 +8,7 @@
 
 from tornado import ioloop, version_info
 
-from sockjs.tornado import transports, session, sessioncontainer, static, stats
+from sockjs.tornado import transports, session, sessioncontainer, static, stats, proto
 
 
 DEFAULT_SETTINGS = {
@@ -172,3 +172,31 @@ class SockJSRouter(object):
     def get_connection_class(self):
         """Return associated connection class"""
         return self._connection
+
+    # Broadcast helper
+    def broadcast(self, clients, msg):
+        """Optimized `broadcast` implementation. Depending on type of the session, will json-encode
+        message once and will call either `send_message` or `send_jsonifed`.
+
+        `clients`
+            Clients iterable
+        `msg`
+            Message to send
+        """
+        json_msg = None
+
+        count = 0
+
+        for c in clients:
+            sess = c.session
+            if not sess.is_closed:
+                if sess.send_expects_json:
+                    if json_msg is None:
+                        json_msg = proto.json_encode(msg)
+                    sess.send_jsonified(json_msg, False)
+                else:
+                    sess.send_message(msg, False)
+
+                count += 1
+
+        self.stats.on_pack_sent(count)
