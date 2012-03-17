@@ -16,6 +16,7 @@ try:
 
     json_encode = lambda data: simplejson.dumps(data, separators=(',', ':'))
     json_decode = lambda data: simplejson.loads(data)
+    JSONDecodeError = simplejson.JSONDecodeError
 
     logging.debug('sockjs.tornado will use simplejson module')
 except ImportError:
@@ -26,6 +27,7 @@ except ImportError:
 
     json_encode = lambda data: json.dumps(data, separators=(',', ':'))
     json_decode = lambda data: json.loads(data)
+    JSONDecodeError = ValueError
 
 # Protocol handlers
 CONNECT = 'o'
