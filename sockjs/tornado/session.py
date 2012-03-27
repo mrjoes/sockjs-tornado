@@ -220,6 +220,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self._immediate_flush = self.server.settings['immediate_flush']
         self._pending_flush = False
 
+        self._verify_ip = self.server.settings['verify_ip']
+
     # Session callbacks
     def on_delete(self, forced):
         """Session expiration callback
@@ -248,7 +250,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
             handler.send_pack(proto.disconnect(2010, "Another connection still open"))
             return False
 
-        if self.conn_info is not None:
+        if self._verify_ip and self.conn_info is not None:
             # If IP address doesn't match - refuse connection
             if handler.request.remote_ip != self.conn_info.ip:
                 logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (

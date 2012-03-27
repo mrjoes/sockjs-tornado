@@ -31,7 +31,10 @@ DEFAULT_SETTINGS = {
     # flush on next ioloop tick
     'immediate_flush': True,
     # Enable or disable Nagle for persistent transports
-    'disable_nagle': True
+    'disable_nagle': True,
+    # Enable IP checks for polling transports. If enabled, all subsequent
+    # polling calls should be from the same IP address.
+    'verify_ip': True
     }
 
 GLOBAL_HANDLERS = [
