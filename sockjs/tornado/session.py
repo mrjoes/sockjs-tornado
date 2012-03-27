@@ -254,7 +254,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
                 logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
                               self.session_id,
                               self.conn_info.ip,
-                              self.handler.request.remote_ip
+                              handler.request.remote_ip
                               ))
 
                 handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
