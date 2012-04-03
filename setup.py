@@ -33,7 +33,7 @@ setup(
     packages=['sockjs', 'sockjs.tornado', 'sockjs.tornado.transports'],
     namespace_packages=['sockjs'],
     scripts=[],
-    url='http://github.com/MrJoes/sockjs-tornado/',
+    url='http://github.com/mrjoes/sockjs-tornado/',
     license=license,
     description='SockJS python server implementation on top of Tornado framework',
     long_description=desc(),
