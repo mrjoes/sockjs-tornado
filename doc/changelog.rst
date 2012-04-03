@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.0.4
+~~~~~
+
+ - Added support for older simplejson library versions
+ - Fixed installation script
+
 0.0.3
 ~~~~~
 
