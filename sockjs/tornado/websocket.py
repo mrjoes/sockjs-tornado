@@ -106,6 +106,7 @@ class WebSocketHandler(tornado.web.RequestHandler):
             self.stream.write(tornado.escape.utf8(
                 "HTTP/1.1 405 Method Not Allowed\r\n"
                 "Allow: GET\r\n"
+                "Connection: Close\r\n"
                 "\r\n"
             ))
             self.stream.close()
@@ -114,7 +115,9 @@ class WebSocketHandler(tornado.web.RequestHandler):
         # Upgrade header should be present and should be equal to WebSocket
         if self.request.headers.get("Upgrade", "").lower() != "websocket":
             self.stream.write(tornado.escape.utf8(
-                "HTTP/1.1 400 Bad Request\r\n\r\n"
+                "HTTP/1.1 400 Bad Request\r\n"
+                "Connection: Close\r\n"
+                "\r\n"
                 "Can \"Upgrade\" only to \"WebSocket\"."
             ))
             self.stream.close()
@@ -126,7 +129,9 @@ class WebSocketHandler(tornado.web.RequestHandler):
         connection = map(lambda s: s.strip().lower(), headers.get("Connection", "").split(","))
         if "upgrade" not in connection:
             self.stream.write(tornado.escape.utf8(
-                "HTTP/1.1 400 Bad Request\r\n\r\n"
+                "HTTP/1.1 400 Bad Request\r\n"
+                "Connection: Close\r\n"
+                "\r\n"
                 "\"Connection\" must be \"Upgrade\"."
             ))
             self.stream.close()

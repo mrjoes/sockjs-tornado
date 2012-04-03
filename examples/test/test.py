@@ -52,6 +52,12 @@ class AmplifyConnection(SockJSConnection):
 
         self.send('x' * int(math.pow(2, n)))
 
+
+class CookieEcho(SockJSConnection):
+    def on_message(self, msg):
+        self.send(msg)
+
+
 if __name__ == '__main__':
     import logging
     logging.getLogger().setLevel(logging.DEBUG)
@@ -64,13 +70,15 @@ if __name__ == '__main__':
     TickerRouter = SockJSRouter(TickerConnection, '/ticker')
     AmplifyRouter = SockJSRouter(AmplifyConnection, '/amplify')
     BroadcastRouter = SockJSRouter(BroadcastConnection, '/broadcast')
+    CookieRouter = SockJSRouter(CookieEcho, '/cookie_needed_echo')
 
     app = web.Application(EchoRouter.urls +
                           WSOffRouter.urls +
                           CloseRouter.urls +
                           TickerRouter.urls +
                           AmplifyRouter.urls +
-                          BroadcastRouter.urls
+                          BroadcastRouter.urls +
+                          CookieRouter.urls
                           )
 
     app.listen(8081)

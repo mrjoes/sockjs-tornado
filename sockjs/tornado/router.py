@@ -22,7 +22,7 @@ DEFAULT_SETTINGS = {
     # Enabled protocols
     'disabled_transports': [],
     # SockJS location
-    'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.2.min.js',
+    'sockjs_url': 'http://cdn.sockjs.org/sockjs-0.3.min.js',
     # Max response body size
     'response_limit': 128 * 1024,
     # Enable or disable JSESSIONID cookie handling
