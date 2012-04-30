@@ -27,9 +27,9 @@ class EchoConnection(SockJSConnection):
         self.clients.remove(self)
 
     @classmethod
-    def dump_stats(self):
+    def dump_stats(cls):
         # Print current client count
-        print 'Clients: %d' % (len(self.clients))
+        print 'Clients: %d' % (len(cls.clients))
 
 if __name__ == '__main__':
     options = dict()
