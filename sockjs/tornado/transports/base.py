@@ -13,7 +13,8 @@ class BaseTransportMixin(object):
         """Return `ConnectionInfo` object from current transport"""
         return session.ConnectionInfo(self.request.remote_ip,
                                       self.request.cookies,
-                                      self.request.arguments)
+                                      self.request.arguments,
+                                      self.request.headers)
 
     def session_closed(self):
         """Called by the session, when it gets closed"""
