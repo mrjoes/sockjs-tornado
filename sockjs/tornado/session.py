@@ -24,11 +24,21 @@ class ConnectionInfo(object):
         Collection of cookies
     `arguments`
         Collection of the query string arguments
+    `headers`
+        Collection of explicitly exposed headers from the request including:
+        origin, referer, x-forward-for (and associated headers)
     """
-    def __init__(self, ip, cookies, arguments):
+    _exposed_headers = set(['referer', 'x-client-ip', 'x-forwarded-for',
+                            'x-cluster-client-ip', 'via', 'x-real-ip'])
+    def __init__(self, ip, cookies, arguments, headers):
         self.ip = ip
         self.cookies = cookies
         self.arguments = arguments
+        self.headers = {}
+
+        for header in headers:
+            if header.lower() in ConnectionInfo._exposed_headers:
+                self.headers[header] = headers[header]
 
     def get_argument(self, name):
         """Return single argument by name"""
@@ -40,6 +50,10 @@ class ConnectionInfo(object):
     def get_cookie(self, name):
         """Return single cookie by its name"""
         return self.cookies.get(name)
+
+    def get_header(self, name):
+        """Return single header by its name"""
+        return self.headers.get(name)
 
 
 # Session states
