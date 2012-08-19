@@ -14,7 +14,8 @@ class BaseTransportMixin(object):
         return session.ConnectionInfo(self.request.remote_ip,
                                       self.request.cookies,
                                       self.request.arguments,
-                                      self.request.headers)
+                                      self.request.headers,
+                                      self.request.path)
 
     def session_closed(self):
         """Called by the session, when it gets closed"""
