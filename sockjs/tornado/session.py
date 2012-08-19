@@ -27,14 +27,17 @@ class ConnectionInfo(object):
     `headers`
         Collection of explicitly exposed headers from the request including:
         origin, referer, x-forward-for (and associated headers)
+    `path`
+        Request uri path
     """
     _exposed_headers = set(['referer', 'x-client-ip', 'x-forwarded-for',
                             'x-cluster-client-ip', 'via', 'x-real-ip'])
-    def __init__(self, ip, cookies, arguments, headers):
+    def __init__(self, ip, cookies, arguments, headers, path):
         self.ip = ip
         self.cookies = cookies
         self.arguments = arguments
         self.headers = {}
+        self.path = path
 
         for header in headers:
             if header.lower() in ConnectionInfo._exposed_headers:
