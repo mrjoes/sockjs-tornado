@@ -36,7 +36,7 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
         else:
             self.session.flush()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
         try:
             self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
             self.set_header('Content-Length', len(message) + 1)

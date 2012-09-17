@@ -15,8 +15,8 @@ from sockjs.tornado.transports import base
 class RawSession(session.BaseSession):
     """Raw session without any sockjs protocol encoding/decoding. Simply
     works as a proxy between `SockJSConnection` class and `RawWebSocketTransport`."""
-    def send_message(self, msg):
-        self.handler.send_pack(msg)
+    def send_message(self, msg, binary=False):
+        self.handler.send_pack(msg, binary)
 
     def on_message(self, msg):
         self.conn.on_message(msg)
@@ -72,10 +72,10 @@ class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin)
             self._detach()
             session.close()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
         # Send message
         try:
-            self.write_message(message)
+            self.write_message(message, binary)
         except IOError:
             self.server.io_loop.add_callback(self.on_close)
 

@@ -32,7 +32,7 @@ class XhrStreamingTransport(streamingbase.StreamingTransportBase):
         if self.session:
             self.session.flush()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
         try:
             self.write(message + '\n')
             self.flush()

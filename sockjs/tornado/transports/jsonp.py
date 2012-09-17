@@ -44,7 +44,7 @@ class JSONPTransport(pollingbase.PollingTransportBase):
         else:
             self.session.flush()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
         try:
             # TODO: Just escape
             msg = '%s(%s);\r\n' % (self.callback, proto.json_encode(message))

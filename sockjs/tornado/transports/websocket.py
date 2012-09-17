@@ -77,10 +77,10 @@ class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
             self._detach()
             session.close()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
         # Send message
         try:
-            self.write_message(message)
+            self.write_message(message, binary)
         except IOError:
             self.server.io_loop.add_callback(self.on_close)
 
