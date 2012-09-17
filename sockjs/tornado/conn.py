@@ -46,7 +46,7 @@ class SockJSConnection(object):
             Message to send.
         """
         if not self.is_closed:
-            self.session.send_message(message, binary)
+            self.session.send_message(message, binary=binary)
 
     def broadcast(self, clients, message):
         """Broadcast message to the one or more clients.
