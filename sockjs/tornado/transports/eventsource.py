@@ -33,6 +33,8 @@ class EventSourceTransport(streamingbase.StreamingTransportBase):
             self.session.flush()
 
     def send_pack(self, message, binary=False):
+        if binary:
+            raise Exception('binary not supported for EventSourceTransport')
         msg = 'data: %s\r\n\r\n' % message
 
         try:

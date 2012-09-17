@@ -37,6 +37,8 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
             self.session.flush()
 
     def send_pack(self, message, binary=False):
+        if binary:
+            raise Exception('binary not supported for XhrPollingTransport')
         try:
             self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
             self.set_header('Content-Length', len(message) + 1)

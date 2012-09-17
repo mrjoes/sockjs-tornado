@@ -45,6 +45,8 @@ class JSONPTransport(pollingbase.PollingTransportBase):
             self.session.flush()
 
     def send_pack(self, message, binary=False):
+        if binary:
+            raise Exception('binary not supported for JSONPTransport')
         try:
             # TODO: Just escape
             msg = '%s(%s);\r\n' % (self.callback, proto.json_encode(message))
