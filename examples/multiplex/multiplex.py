@@ -67,9 +67,9 @@ class MultiplexConnection(conn.SockJSConnection):
 
                 self.endpoints[chan] = session
 
-        def on_close(self):
-            for ep in self.endpoints:
-                ep._close()
+    def on_close(self):
+        for chan in self.endpoints:
+            self.endpoints[chan]._close()
 
     @classmethod
     def get(cls, **kwargs):
