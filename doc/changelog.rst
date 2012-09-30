@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.0.5
+~~~~~
+ - iOS 6 support
+ - SockJS 0.3.3 client support
+ - Some headers and request URI path is now passed to on_open handler
+ - Added binary transport support for raw websocket transport
+ - Minor multiplex sample fixes
+
 0.0.4
 ~~~~~
 
