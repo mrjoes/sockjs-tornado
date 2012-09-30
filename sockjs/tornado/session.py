@@ -174,7 +174,7 @@ class BaseSession(object):
         """Check if session was closed."""
         return self.state == CLOSED or self.state == CLOSING
 
-    def send_message(self, msg, stats=True):
+    def send_message(self, msg, stats=True, binary=False):
         """Send or queue outgoing message
 
         `msg`
@@ -313,7 +313,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self.promote()
         self.stop_heartbeat()
 
-    def send_message(self, msg, stats=True):
+    def send_message(self, msg, stats=True, binary=False):
         """Send or queue outgoing message
 
         `msg`
