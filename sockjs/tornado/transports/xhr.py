@@ -22,6 +22,7 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
         # Start response
         self.preflight()
         self.handle_session_cookie()
+        self.disable_cache()
 
         # Get or create session without starting heartbeat
         if not self._attach_session(session_id, False):
@@ -55,6 +56,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
     def post(self, session_id):
         self.preflight()
         self.handle_session_cookie()
+        self.disable_cache()
 
         session = self._get_session(session_id)
 

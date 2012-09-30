@@ -19,6 +19,7 @@ class XhrStreamingTransport(streamingbase.StreamingTransportBase):
         # Handle cookie
         self.preflight()
         self.handle_session_cookie()
+        self.disable_cache()
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
 
         # Send prelude and flush any pending messages
