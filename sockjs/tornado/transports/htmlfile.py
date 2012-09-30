@@ -65,7 +65,9 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
         if self.session:
             self.session.flush()
 
-    def send_pack(self, message):
+    def send_pack(self, message, binary=False):
+        if binary:
+            raise Exception('binary not supported for HtmlFileTransport')
         # TODO: Just do escaping
         msg = '<script>\np(%s);\n</script>\r\n' % proto.json_encode(message)
 
