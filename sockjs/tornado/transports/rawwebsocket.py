@@ -49,8 +49,7 @@ class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin)
             self.session = None
 
     def on_message(self, message):
-        # Ignore empty messages
-        if not message or not self.session:
+        if not self.session:
             return
 
         try:
