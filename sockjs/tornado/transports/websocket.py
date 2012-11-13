@@ -19,6 +19,7 @@ class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
     def initialize(self, server):
         self.server = server
         self.session = None
+        self.active = True
 
     def open(self, session_id):
         # Stats
@@ -46,7 +47,8 @@ class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
             self.session = None
 
     def on_message(self, message):
-        if not self.session:
+        # SockJS requires that empty messages should be ignored
+        if not message or not self.session:
             return
 
         try:

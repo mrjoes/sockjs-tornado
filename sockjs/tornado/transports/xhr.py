@@ -40,18 +40,18 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
     def send_pack(self, message, binary=False):
         if binary:
             raise Exception('binary not supported for XhrPollingTransport')
+
+        self.active = False
+
         try:
             self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
             self.set_header('Content-Length', len(message) + 1)
             self.write(message + '\n')
+            self.flush(callback=self.send_complete)
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.
             self.session.delayed_close()
-
-        self._detach()
-
-        self.safe_finish()
 
 
 class XhrSendHandler(pollingbase.PollingTransportBase):

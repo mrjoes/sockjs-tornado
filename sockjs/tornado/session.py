@@ -337,7 +337,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
             msg = msg.encode('utf-8')
 
         if self._immediate_flush:
-            if self.handler and not self.send_queue:
+            if self.handler and self.handler.active and not self.send_queue:
                 # Send message right away
                 self.handler.send_pack('a[%s]' % msg)
             else:
@@ -362,10 +362,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         """Flush message queue if there's an active connection running"""
         self._pending_flush = False
 
-        if self.handler is None:
-            return
-
-        if not self.send_queue:
+        if self.handler is None or not self.handler.active or not self.send_queue:
             return
 
         self.handler.send_pack('a[%s]' % self.send_queue)

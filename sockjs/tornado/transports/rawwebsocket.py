@@ -8,7 +8,7 @@
 import logging
 import socket
 
-from sockjs.tornado import proto, websocket, session
+from sockjs.tornado import websocket, session
 from sockjs.tornado.transports import base
 
 
@@ -29,6 +29,7 @@ class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin)
     def initialize(self, server):
         self.server = server
         self.session = None
+        self.active = True
 
     def open(self):
         # Stats
@@ -49,7 +50,8 @@ class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin)
             self.session = None
 
     def on_message(self, message):
-        if not self.session:
+        # SockJS requires that empty messages should be ignored
+        if not message or not self.session:
             return
 
         try:
