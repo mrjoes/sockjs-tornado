@@ -40,7 +40,6 @@ class IFrameHandler(BaseHandler):
     def get(self):
         data = str_to_bytes(IFRAME_TEXT % self.server.settings['sockjs_url'])
 
-        print(data)
         hsh = hashlib.md5(data).hexdigest()
 
         value = self.request.headers.get('If-None-Match')

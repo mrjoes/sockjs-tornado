@@ -14,7 +14,7 @@ if PY3:
     def bytes_to_str(b):
         if isinstance(b, text_type):
             return b
-        return str(b, 'latin1')
+        return str(b, 'utf8')
 
     def str_to_bytes(s):
         if isinstance(s, bytes):
