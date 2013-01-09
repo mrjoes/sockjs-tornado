@@ -116,7 +116,7 @@ class SockJSRouter(object):
         self._transport_urls = [('%s/%s$' % (base, p[0]), p[1], dict(server=self))
                                 for p in GLOBAL_HANDLERS]
 
-        for k, v in TRANSPORTS.iteritems():
+        for k, v in TRANSPORTS.items():
             if k in self.settings['disabled_transports']:
                 continue
 
@@ -128,9 +128,8 @@ class SockJSRouter(object):
                 )
 
         # Generate static URLs
-        map(self._transport_urls.append,
-            (('%s%s' % (prefix, k), v, dict(server=self))
-            for k, v in STATIC_HANDLERS.iteritems()))
+        self._transport_urls.extend([('%s%s' % (prefix, k), v, dict(server=self)) 
+                                     for k, v in STATIC_HANDLERS.items()])
 
     @property
     def urls(self):

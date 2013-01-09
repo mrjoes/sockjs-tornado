@@ -9,7 +9,7 @@
 import logging
 
 from sockjs.tornado import sessioncontainer, periodic, proto
-
+from sockjs.tornado.util import bytes_to_str
 
 class ConnectionInfo(object):
     """Connection information object.
@@ -321,7 +321,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         `stats`
             If set to True, will update statistics after operation completes
         """
-        self.send_jsonified(proto.json_encode(msg), stats)
+        self.send_jsonified(proto.json_encode(bytes_to_str(msg)), stats)
 
     def send_jsonified(self, msg, stats=True):
         """Send JSON-encoded message
@@ -331,10 +331,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         `stats`
             If set to True, will update statistics after operation completes
         """
-        assert isinstance(msg, basestring), 'Can only send strings'
-
-        if isinstance(msg, unicode):
-            msg = msg.encode('utf-8')
+        msg = bytes_to_str(msg)
 
         if self._immediate_flush:
             if self.handler and self.handler.active and not self.send_queue:
