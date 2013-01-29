@@ -60,7 +60,6 @@ class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin)
             logging.exception('RawWebSocket')
 
             # Close running connection
-            self._detach()
             self.abort_connection()
 
     def on_close(self):
