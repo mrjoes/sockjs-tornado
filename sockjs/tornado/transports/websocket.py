@@ -12,7 +12,8 @@ from sockjs.tornado import proto, websocket
 from sockjs.tornado.transports import base
 from sockjs.tornado.util import bytes_to_str
 
-class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
+
+class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
     """Websocket transport"""
     name = 'websocket'
 

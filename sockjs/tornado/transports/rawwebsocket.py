@@ -22,7 +22,7 @@ class RawSession(session.BaseSession):
         self.conn.on_message(msg)
 
 
-class RawWebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
+class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
     """Raw Websocket transport"""
     name = 'rawwebsocket'
 

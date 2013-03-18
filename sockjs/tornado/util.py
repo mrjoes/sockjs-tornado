@@ -3,16 +3,10 @@ import sys
 PY3 = sys.version_info[0] == 3
 
 if PY3:
-    string_types = str,
-    integer_types = int,
-    class_types = type,
-    text_type = str
-    binary_type = bytes
-    
     MAXSIZE = sys.maxsize
 
     def bytes_to_str(b):
-        if isinstance(b, text_type):
+        if isinstance(b, str):
             return b
         return str(b, 'utf8')
 
@@ -24,12 +18,6 @@ if PY3:
     import urllib.parse
     unquote_plus = urllib.parse.unquote_plus
 else:
-    string_types = basestring,
-    integer_types = (int, long)
-    class_types = (type, types.ClassType)
-    text_type = unicode
-    binary_type = str
-
     if sys.platform == "java":
         # Jython always uses 32 bits.
         MAXSIZE = int((1 << 31) - 1)
