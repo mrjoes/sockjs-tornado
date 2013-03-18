@@ -15,6 +15,7 @@ from tornado.web import asynchronous
 
 from sockjs.tornado.basehandler import BaseHandler, PreflightHandler
 from sockjs.tornado.proto import json_encode
+from sockjs.tornado.util import MAXSIZE, str_to_bytes
 
 IFRAME_TEXT = '''<!DOCTYPE html>
 <html>
@@ -37,7 +38,7 @@ IFRAME_TEXT = '''<!DOCTYPE html>
 class IFrameHandler(BaseHandler):
     """SockJS IFrame page handler"""
     def get(self):
-        data = IFRAME_TEXT % self.server.settings['sockjs_url']
+        data = str_to_bytes(IFRAME_TEXT % self.server.settings['sockjs_url'])
 
         hsh = hashlib.md5(data).hexdigest()
 
@@ -127,6 +128,6 @@ class InfoHandler(PreflightHandler):
         options = dict(websocket=self.server.websockets_enabled,
                        cookie_needed=self.server.cookie_needed,
                        origins=['*:*'],
-                       entropy=random.randint(0, sys.maxint))
+                       entropy=random.randint(0, MAXSIZE))
 
         self.write(json_encode(options))

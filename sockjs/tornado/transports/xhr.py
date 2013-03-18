@@ -11,7 +11,7 @@ from tornado.web import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
-
+from sockjs.tornado.util import bytes_to_str
 
 class XhrPollingTransport(pollingbase.PollingTransportBase):
     """xhr-polling transport implementation"""
@@ -74,7 +74,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
             return
 
         try:
-            messages = proto.json_decode(data)
+            messages = proto.json_decode(bytes_to_str(data))
         except:
             # TODO: Proper error handling
             self.write("Broken JSON encoding.")

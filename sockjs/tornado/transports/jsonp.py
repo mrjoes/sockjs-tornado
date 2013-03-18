@@ -5,14 +5,13 @@
 
     JSONP transport implementation.
 """
-import urllib
 import logging
 
 from tornado.web import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
-
+from sockjs.tornado.util import bytes_to_str, unquote_plus
 
 class JSONPTransport(pollingbase.PollingTransportBase):
     name = 'jsonp'
@@ -81,7 +80,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             return
 
         #data = self.request.body.decode('utf-8')
-        data = self.request.body
+        data = bytes_to_str(self.request.body)
 
         ctype = self.request.headers.get('Content-Type', '').lower()
         if ctype == 'application/x-www-form-urlencoded':
@@ -92,7 +91,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
                 self.set_status(500)
                 return
 
-            data = urllib.unquote_plus(data[2:])
+            data = unquote_plus(data[2:])
 
         if not data:
             logging.debug('jsonp_send: Payload expected.')

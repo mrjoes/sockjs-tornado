@@ -621,7 +621,7 @@ class WebSocketProtocol13(WebSocketProtocol):
     def _on_frame_data(self, data):
         unmasked = make_array(data)
         mask = self._frame_mask
-        for i in xrange(len(data)):
+        for i in range(len(data)):
             unmasked[i] = unmasked[i] ^ mask[i % 4]
 
         if self._frame_opcode_is_control:
