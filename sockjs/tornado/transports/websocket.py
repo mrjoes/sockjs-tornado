@@ -10,7 +10,7 @@ import socket
 
 from sockjs.tornado import proto, websocket
 from sockjs.tornado.transports import base
-
+from sockjs.tornado.util import bytes_to_str
 
 class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
     """Websocket transport"""
@@ -52,7 +52,7 @@ class WebSocketTransport(websocket.WebSocketHandler, base.BaseTransportMixin):
             return
 
         try:
-            msg = proto.json_decode(message)
+            msg = proto.json_decode(bytes_to_str(message))
 
             if isinstance(msg, list):
                 self.session.on_messages(msg)

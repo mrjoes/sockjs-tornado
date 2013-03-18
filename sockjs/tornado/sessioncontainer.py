@@ -56,8 +56,10 @@ class SessionMixin(object):
         """Triggered when object was expired or deleted."""
         pass
 
-    def __cmp__(self, other):
-        return cmp(self.expiry_date, other.expiry_date)
+    def __lt__(self, other):
+        return self.expiry_date < other.expiry_date
+    
+    __cmp__ =  __lt__
 
     def __repr__(self):
         return '%f %s %d' % (getattr(self, 'expiry_date', -1),
