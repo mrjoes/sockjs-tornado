@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 import os
 
+import distutils.core
+import sys
+
 try:
-    from setuptools import setup, find_packages
+    import setuptools
 except ImportError:
-    try:
-        from distribute_setup import use_setuptools
-        use_setuptools()
-        from setuptools import setup, find_packages
-    except ImportError:
-        from distutils.core import setup
+    pass
+
 try:
     license = open('LICENSE').read()
 except:
@@ -27,9 +26,9 @@ def desc():
     except IOError:
         return info
 
-setup(
+distutils.core.setup(
     name='sockjs-tornado',
-    version='0.0.5',
+    version='1.0.0',
     author='Serge S. Koval',
     author_email='serge.koval@gmail.com',
     packages=['sockjs', 'sockjs.tornado', 'sockjs.tornado.transports'],

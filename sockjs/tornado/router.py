@@ -128,7 +128,7 @@ class SockJSRouter(object):
                 )
 
         # Generate static URLs
-        self._transport_urls.extend([('%s%s' % (prefix, k), v, dict(server=self)) 
+        self._transport_urls.extend([('%s%s' % (prefix, k), v, dict(server=self))
                                      for k, v in STATIC_HANDLERS.items()])
 
     @property

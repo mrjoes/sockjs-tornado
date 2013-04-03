@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+1.0.0
+~~~~~
+ - Major version bump. sockjs-tornado can be considered mature
+ - Python 3 support
+ - Tornado 3.0 support on both Python 2 and Python 3
+ - Bug fixes
+
+
 0.0.5
 ~~~~~
  - iOS 6 support
