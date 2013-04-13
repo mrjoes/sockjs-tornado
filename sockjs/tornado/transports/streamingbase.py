@@ -38,7 +38,10 @@ class StreamingTransportBase(pollingbase.PollingTransportBase):
 
         if self.should_finish():
             self._detach()
-            self.safe_finish()
+
+            # Avoid race condition when waiting for write callback and session getting closed in between
+            if not self._finished:
+                self.safe_finish()
         else:
             if self.session:
                 self.session.flush()
