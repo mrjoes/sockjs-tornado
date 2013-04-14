@@ -6,9 +6,9 @@ if PY3:
     MAXSIZE = sys.maxsize
 
     def bytes_to_str(b):
-        if isinstance(b, str):
-            return b
-        return str(b, 'utf8')
+        if isinstance(b, bytes):
+            return str(b, 'utf8')
+        return b
 
     def str_to_bytes(s):
         if isinstance(s, bytes):
