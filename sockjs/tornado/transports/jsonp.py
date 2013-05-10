@@ -75,11 +75,10 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
 
         session = self._get_session(session_id)
 
-        if session is None:
+        if session is None or session.is_closed:
             self.set_status(404)
             return
 
-        #data = self.request.body.decode('utf-8')
         data = bytes_to_str(self.request.body)
 
         ctype = self.request.headers.get('Content-Type', '').lower()
