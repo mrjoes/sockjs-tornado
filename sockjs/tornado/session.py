@@ -417,4 +417,5 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self.stats.on_pack_recv(len(msg_list))
 
         for msg in msg_list:
-            self.conn.on_message(msg)
+            if self.state == OPEN:
+                self.conn.on_message(msg)

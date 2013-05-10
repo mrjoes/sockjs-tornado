@@ -62,11 +62,10 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
 
         session = self._get_session(session_id)
 
-        if session is None:
+        if session is None or session.is_closed:
             self.set_status(404)
             return
 
-        #data = self.request.body.decode('utf-8')
         data = self.request.body
         if not data:
             self.write("Payload expected.")

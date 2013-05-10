@@ -2,7 +2,6 @@ from tornado import websocket, escape
 
 
 class SockJSWebSocketHandler(websocket.WebSocketHandler):
-
     def abort_connection(self):
         self.ws_connection._abort()
 
