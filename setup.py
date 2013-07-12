@@ -38,6 +38,16 @@ distutils.core.setup(
     license=license,
     description='SockJS python server implementation on top of Tornado framework',
     long_description=desc(),
+    classifiers=[
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: Implementation :: CPython',
+    ],
     requires=['tornado'],
     install_requires=[
         'tornado >= 2.1.1'
