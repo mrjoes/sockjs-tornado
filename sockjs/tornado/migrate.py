@@ -22,7 +22,7 @@ class WebsocketHandler(conn.SockJSConnection):
     def on_open(self, info):
         """sockjs-tornado on_open handler"""
         # Store some properties
-        self.remote_ip = info.remote_ip
+        self.ip = info.ip
 
         # Create fake request object
         self.request = info
