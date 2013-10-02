@@ -38,11 +38,11 @@ class BaseHandler(RequestHandler):
             self.server.stats.on_conn_closed()
             self.logged = False
 
-    def finish(self):
+    def finish(self, chunk=None):
         """Tornado `finish` handler"""
         self._log_disconnect()
 
-        super(BaseHandler, self).finish()
+        super(BaseHandler, self).finish(chunk)
 
     def on_connection_close(self):
         """Tornado `on_connection_close` handler"""
