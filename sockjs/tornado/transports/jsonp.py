@@ -13,6 +13,8 @@ from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
 from sockjs.tornado.util import bytes_to_str, unquote_plus
 
+LOG = logging.getLogger("tornado.general")
+
 class JSONPTransport(pollingbase.PollingTransportBase):
     name = 'jsonp'
 
@@ -84,7 +86,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
         ctype = self.request.headers.get('Content-Type', '').lower()
         if ctype == 'application/x-www-form-urlencoded':
             if not data.startswith('d='):
-                logging.exception('jsonp_send: Invalid payload.')
+                LOG.exception('jsonp_send: Invalid payload.')
 
                 self.write("Payload expected.")
                 self.set_status(500)
@@ -93,7 +95,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             data = unquote_plus(data[2:])
 
         if not data:
-            logging.debug('jsonp_send: Payload expected.')
+            LOG.debug('jsonp_send: Payload expected.')
 
             self.write("Payload expected.")
             self.set_status(500)
@@ -103,7 +105,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
             messages = proto.json_decode(data)
         except:
             # TODO: Proper error handling
-            logging.debug('jsonp_send: Invalid json encoding')
+            LOG.debug('jsonp_send: Invalid json encoding')
 
             self.write("Broken JSON encoding.")
             self.set_status(500)
@@ -112,7 +114,7 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
         try:
             session.on_messages(messages)
         except Exception:
-            logging.exception('jsonp_send: on_message() failed')
+            LOG.exception('jsonp_send: on_message() failed')
 
             session.close()
 

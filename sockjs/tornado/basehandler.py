@@ -14,6 +14,7 @@ from tornado.web import asynchronous, RequestHandler
 
 CACHE_TIME = 31536000
 
+LOG = logging.getLogger("tornado.general")
 
 class BaseHandler(RequestHandler):
     """Base request handler with set of helpers."""
@@ -86,7 +87,7 @@ class BaseHandler(RequestHandler):
             # We don't want to raise IOError exception if finish() call fails.
             # It can happen if connection is set to Keep-Alive, but client
             # closes connection after receiving response.
-            logging.debug('Ignoring IOError in safe_finish()')
+            LOG.debug('Ignoring IOError in safe_finish()')
             pass
 
 

@@ -12,6 +12,7 @@ from sockjs.tornado import proto, websocket
 from sockjs.tornado.transports import base
 from sockjs.tornado.util import bytes_to_str
 
+LOG = logging.getLogger("tornado.general")
 
 class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
     """Websocket transport"""
@@ -60,7 +61,7 @@ class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMix
             else:
                 self.session.on_messages((msg,))
         except Exception:
-            logging.exception('WebSocket')
+            LOG.exception('WebSocket')
 
             # Close session on exception
             #self.session.close()

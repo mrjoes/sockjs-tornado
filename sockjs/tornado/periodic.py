@@ -10,6 +10,7 @@
 import time
 import logging
 
+LOG = logging.getLogger("tornado.general")
 
 class Callback(object):
     """Custom implementation of the Tornado.Callback with support
@@ -69,7 +70,7 @@ class Callback(object):
         except (KeyboardInterrupt, SystemExit):
             raise
         except:
-            logging.error("Error in periodic callback", exc_info=True)
+            LOG.error("Error in periodic callback", exc_info=True)
 
         if self._running:
             self.start(next_call)

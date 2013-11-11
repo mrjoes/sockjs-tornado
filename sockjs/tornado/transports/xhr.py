@@ -13,6 +13,8 @@ from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
 from sockjs.tornado.util import bytes_to_str
 
+LOG = logging.getLogger("tornado.general")
+
 class XhrPollingTransport(pollingbase.PollingTransportBase):
     """xhr-polling transport implementation"""
     name = 'xhr'
@@ -83,7 +85,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
         try:
             session.on_messages(messages)
         except Exception:
-            logging.exception('XHR incoming')
+            LOG.exception('XHR incoming')
             session.close()
 
             self.set_status(500)

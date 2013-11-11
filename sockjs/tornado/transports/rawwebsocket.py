@@ -11,6 +11,7 @@ import socket
 from sockjs.tornado import websocket, session
 from sockjs.tornado.transports import base
 
+LOG = logging.getLogger("tornado.general")
 
 class RawSession(session.BaseSession):
     """Raw session without any sockjs protocol encoding/decoding. Simply
@@ -57,7 +58,7 @@ class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransport
         try:
             self.session.on_message(message)
         except Exception:
-            logging.exception('RawWebSocket')
+            LOG.exception('RawWebSocket')
 
             # Close running connection
             self.abort_connection()
