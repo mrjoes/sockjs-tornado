@@ -11,6 +11,8 @@ import logging
 from sockjs.tornado import sessioncontainer, periodic, proto
 from sockjs.tornado.util import bytes_to_str
 
+LOG = logging.getLogger("tornado.general")
+
 class ConnectionInfo(object):
     """Connection information object.
 
@@ -138,7 +140,7 @@ class BaseSession(object):
             try:
                 self.conn.on_close()
             except:
-                logging.debug("Failed to call on_close().", exc_info=True)
+                LOG.debug("Failed to call on_close().", exc_info=True)
             finally:
                 self.state = CLOSED
                 self.close_reason = (code, message)
@@ -270,7 +272,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         if self._verify_ip and self.conn_info is not None:
             # If IP address doesn't match - refuse connection
             if handler.request.remote_ip != self.conn_info.ip:
-                logging.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
+                LOG.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
                               self.session_id,
                               self.conn_info.ip,
                               handler.request.remote_ip
