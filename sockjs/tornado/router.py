@@ -34,7 +34,10 @@ DEFAULT_SETTINGS = {
     'disable_nagle': True,
     # Enable IP checks for polling transports. If enabled, all subsequent
     # polling calls should be from the same IP address.
-    'verify_ip': True
+    'verify_ip': True,
+    # list of allowed origins for websocket connections
+    # or "*" - accept all websocket connections
+    'websocket_allow_origin': "*"
     }
 
 GLOBAL_HANDLERS = [
