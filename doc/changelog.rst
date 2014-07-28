@@ -1,6 +1,10 @@
 Changelog
 ---------
 
+1.0.1
+~~~~~
+ - Tornado 4.x compatibility fix
+
 1.0.0
 ~~~~~
  - Major version bump. sockjs-tornado can be considered mature

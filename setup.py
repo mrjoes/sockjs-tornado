@@ -28,7 +28,7 @@ def desc():
 
 distutils.core.setup(
     name='sockjs-tornado',
-    version='1.0.0',
+    version='1.0.1',
     author='Serge S. Koval',
     author_email='serge.koval@gmail.com',
     packages=['sockjs', 'sockjs.tornado', 'sockjs.tornado.transports'],
