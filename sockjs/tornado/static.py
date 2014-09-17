@@ -120,7 +120,7 @@ class InfoHandler(PreflightHandler):
         self.server = server
         self.access_methods = 'OPTIONS, GET'
 
-    def get(self):
+    def get(self, *args, **kwargs):
         self.preflight()
         self.disable_cache()
         self.set_header('Content-Type', 'application/json; charset=UTF-8')
