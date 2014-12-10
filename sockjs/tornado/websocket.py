@@ -41,7 +41,7 @@ class SockJSWebSocketHandler(websocket.WebSocketHandler):
 
         # Upgrade header should be present and should be equal to WebSocket
         if self.request.headers.get("Upgrade", "").lower() != "websocket":
-            self.set_status(405)
+            self.set_status(400)
             self.finish(escape.utf8(
                 "Connection: Close\r\n"
                 "\r\n"
