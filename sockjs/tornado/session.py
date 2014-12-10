@@ -267,7 +267,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
 
         if self._verify_ip and self.conn_info is not None:
             # If IP address doesn't match - refuse connection
-            if handler.request.remote_ip != self.conn_info.ip:
+            localv6 = lambda ip: '127.0.0.1' if ip == '::1' else ip
+            if localv6(handler.request.remote_ip) != localv6(self.conn_info.ip):
                 LOG.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
                               self.session_id,
                               self.conn_info.ip,
