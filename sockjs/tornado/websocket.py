@@ -25,7 +25,8 @@ class SockJSWebSocketHandler(websocket.WebSocketHandler):
             return origin in allow_origin
 
     def abort_connection(self):
-        self.ws_connection._abort()
+        if self.ws_connection:
+            self.ws_connection._abort()
 
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
