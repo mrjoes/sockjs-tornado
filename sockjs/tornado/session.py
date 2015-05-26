@@ -281,7 +281,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
                 handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
                 return False
 
-        if self.state == CLOSING or self.state == CLOSED:
+        if (self.state == CLOSING or self.state == CLOSED) and not self.send_queue:
             handler.send_pack(proto.disconnect(*self.get_close_reason()))
             return False
 
