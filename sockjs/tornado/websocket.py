@@ -1,4 +1,4 @@
-from tornado import websocket, escape
+from tornado import escape, gen, websocket
 
 try:
     from urllib.parse import urlparse # py3
@@ -28,26 +28,22 @@ class SockJSWebSocketHandler(websocket.WebSocketHandler):
         if self.ws_connection:
             self.ws_connection._abort()
 
+    @gen.coroutine
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
         # Websocket only supports GET method
         if self.request.method != "GET":
             self.set_status(405)
-            self.finish(escape.utf8(
-                "Allow: GET\r\n"
-                "Connection: Close\r\n"
-                "\r\n"
-            ))
+            self.set_header("Allow", "GET")
+            self.set_header("Connection", "Close")
+            self.finish("WebSocket only supports GET requests.")
             return
 
         # Upgrade header should be present and should be equal to WebSocket
         if self.request.headers.get("Upgrade", "").lower() != "websocket":
             self.set_status(400)
-            self.finish(escape.utf8(
-                "Connection: Close\r\n"
-                "\r\n"
-                "Can \"Upgrade\" only to \"WebSocket\"."
-            ))
+            self.set_header("Connection", "Close")
+            self.finish("Can \"Upgrade\" only to \"WebSocket\".")
             return
 
         # Connection header should be upgrade. Some proxy servers/load balancers
@@ -56,11 +52,9 @@ class SockJSWebSocketHandler(websocket.WebSocketHandler):
         connection = map(lambda s: s.strip().lower(), headers.get("Connection", "").split(","))
         if "upgrade" not in connection:
             self.set_status(400)
-            self.finish(escape.utf8(
-                "Connection: Close\r\n"
-                "\r\n"
-                "\"Connection\" must be \"Upgrade\"."
-            ))
+            self.set_header("Connection", "Close")
+            self.finish("\"Connection\" must be \"Upgrade\".")
             return
 
-        return super(SockJSWebSocketHandler, self)._execute(transforms, *args, **kwargs)
+        for result in super(SockJSWebSocketHandler, self)._execute(transforms, *args, **kwargs):
+            yield result
