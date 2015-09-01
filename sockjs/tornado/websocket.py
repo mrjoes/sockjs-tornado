@@ -56,5 +56,4 @@ class SockJSWebSocketHandler(websocket.WebSocketHandler):
             self.finish("\"Connection\" must be \"Upgrade\".")
             return
 
-        for result in super(SockJSWebSocketHandler, self)._execute(transforms, *args, **kwargs):
-            yield result
+        yield super(SockJSWebSocketHandler, self)._execute(transforms, *args, **kwargs)
