@@ -423,7 +423,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         If server doesn't recv heartbeat packet from client
         in the interval of two heartbeat, it will close this session.
         """
-        LOG.info('recv heartbeat packet from client timeout')
+        LOG.debug('recv heartbeat packet from client timeout')
+        self.stop_heartbeat()
         self.handler.abort_connection()
 
     def on_messages(self, msg_list):
