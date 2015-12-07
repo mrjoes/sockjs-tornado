@@ -1,4 +1,4 @@
-from tornado import websocket, escape
+from tornado import escape, gen, websocket
 
 try:
     from urllib.parse import urlparse # py3
