@@ -440,7 +440,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
                 if msg == proto.HEARTBEAT:
                     # When recv `heartbeat` from client,
                     # remove the `_check_heartbeat_timer` from ioloop.
-                    self.server.io_loop.remove_timeout(
-                        self._check_heartbeat_timer)
+                    if self._check_heartbeat_timer is not None:
+                        self.server.io_loop.remove_timeout(
+                            self._check_heartbeat_timer)
                 else:
                     self.conn.on_message(msg)
