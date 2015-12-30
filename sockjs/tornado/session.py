@@ -443,5 +443,6 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
                     if self._check_heartbeat_timer is not None:
                         self.server.io_loop.remove_timeout(
                             self._check_heartbeat_timer)
+                    self.conn.on_heartbeat()
                 else:
                     self.conn.on_message(msg)
