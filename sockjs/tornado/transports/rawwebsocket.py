@@ -8,19 +8,62 @@
 import logging
 import socket
 
-from sockjs.tornado import websocket, session
+from sockjs.tornado import websocket, session, periodic, proto
 from sockjs.tornado.transports import base
 
 LOG = logging.getLogger("tornado.general")
 
+
 class RawSession(session.BaseSession):
-    """Raw session without any sockjs protocol encoding/decoding. Simply
-    works as a proxy between `SockJSConnection` class and `RawWebSocketTransport`."""
+    """Raw session without any sockjs protocol encoding/decoding.
+    Simply works as a proxy between `SockJSConnection` class and
+    `RawWebSocketTransport`.
+    """
+
+    def __init__(self, conn, server):
+        super(RawSession, self).__init__(conn, server)
+        self._heartbeat_timer = None
+        self._check_heartbeat_timer = None
+        self._heartbeat_interval = self.server.settings['heartbeat_delay'] * 1000  # noqa
+        self._heartbeat_check_delay = self.server.settings['heartbeat_check_delay']  # noqa
+
     def send_message(self, msg, stats=True, binary=False):
         self.handler.send_pack(msg, binary)
 
     def on_message(self, msg):
         self.conn.on_message(msg)
+
+    def on_heartbeat(self):
+        self.conn.on_heartbeat()
+
+    # Heartbeats
+    def start_heartbeat(self):
+        """Reset hearbeat timer"""
+        self.stop_heartbeat()
+
+        self._heartbeat_timer = periodic.Callback(self._heartbeat,
+                                                  self._heartbeat_interval,
+                                                  self.server.io_loop)
+
+        self._heartbeat_timer.start()
+
+    def stop_heartbeat(self):
+        """Stop active heartbeat"""
+        if self._heartbeat_timer is not None:
+            self._heartbeat_timer.stop()
+            self._heartbeat_timer = None
+
+    def _heartbeat(self):
+        if self.handler is not None:
+            self.handler.ping(proto.HEARTBEAT)
+
+            self._check_heartbeat_timer = self.server.io_loop.call_later(
+                self._heartbeat_check_delay,
+                self._check_heartbeat)
+
+    def _check_heartbeat(self):
+        self.stop_heartbeat()
+        self.handler.abort_connection()
 
 
 class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
@@ -38,12 +81,20 @@ class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransport
 
         # Disable nagle if needed
         if self.server.settings['disable_nagle']:
-            self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+            self.stream.socket.setsockopt(
+                socket.SOL_TCP, socket.TCP_NODELAY, 1)
 
         # Create and attach to session
-        self.session = RawSession(self.server.get_connection_class(), self.server)
+        self.session = RawSession(
+            self.server.get_connection_class(), self.server)
         self.session.set_handler(self)
         self.session.verify_state()
+
+    def on_pong(self):
+        if hasattr(self, "_check_heartbeat_timer"):
+            self.server.io_loop.remove_timeout(
+                self._check_heartbeat_timer)
+            self.session.on_heartbeat()
 
     def _detach(self):
         if self.session is not None:
