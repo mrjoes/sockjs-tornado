@@ -409,8 +409,15 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
     def _heartbeat(self):
         """Heartbeat callback"""
         if self.handler is not None:
-            self.handler.send_pack(proto.HEARTBEAT)
-            if self.handler.name.endswith("websocket"):
+            name = self.handler.name
+
+            # Origin websocket using ping/pong as heartbeat.
+            if name == "rawwebsocket":
+                self.handler.ping('ping')
+            else:
+                self.handler.send_pack(proto.HEARTBEAT)
+
+            if name == "websocket":
                 self._check_heartbeat_timer = self.server.io_loop.call_later(
                     self._heartbeat_check_delay,
                     self._check_heartbeat)
