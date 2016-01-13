@@ -63,7 +63,7 @@ class RawSession(session.BaseSession):
 
     def _check_heartbeat(self):
         self.stop_heartbeat()
-        self.handler.abort_connection()
+        self.handler.close(1100, "Heartbeat timeout")
 
 
 class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
@@ -89,11 +89,12 @@ class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransport
             self.server.get_connection_class(), self.server)
         self.session.set_handler(self)
         self.session.verify_state()
+        self.session.start_heartbeat()
 
-    def on_pong(self):
-        if hasattr(self, "_check_heartbeat_timer"):
+    def on_pong(self, data):
+        if hasattr(self.session, "_check_heartbeat_timer"):
             self.server.io_loop.remove_timeout(
-                self._check_heartbeat_timer)
+                self.session._check_heartbeat_timer)
             self.session.on_heartbeat()
 
     def _detach(self):
