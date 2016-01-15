@@ -4,6 +4,7 @@
     without HTML frontend and listens on port 8080 by default.
 """
 import sys
+import weakref
 
 from tornado import web, ioloop
 
@@ -13,10 +14,12 @@ from sockjs.tornado import SockJSRouter, SockJSConnection
 class EchoConnection(SockJSConnection):
     """Echo connection implementation"""
     clients = set()
+    weak_clients = weakref.WeakSet([])
 
     def on_open(self, info):
         # When new client comes in, will add it to the clients list
         self.clients.add(self)
+        self.weak_clients.add(self)
 
     def on_message(self, msg):
         # For every incoming message, broadcast it to all clients
@@ -30,6 +33,7 @@ class EchoConnection(SockJSConnection):
     def dump_stats(cls):
         # Print current client count
         print 'Clients: %d' % (len(cls.clients))
+        print 'Weak Clients: %d' % (len(cls.weak_clients))
 
 if __name__ == '__main__':
     options = dict()

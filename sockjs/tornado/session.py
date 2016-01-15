@@ -139,6 +139,7 @@ class BaseSession(object):
             finally:
                 self.state = CLOSED
                 self.close_reason = (code, message)
+                self.conn = None
 
             # Bump stats
             self.stats.on_sess_closed(self.transport_name)

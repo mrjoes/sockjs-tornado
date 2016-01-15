@@ -69,7 +69,8 @@ class SockJSRouter(object):
                  connection,
                  prefix='',
                  user_settings=dict(),
-                 io_loop=None):
+                 io_loop=None,
+                 session_kls=None):
         """Constructor.
 
         `connection`
@@ -101,6 +102,7 @@ class SockJSRouter(object):
         self.cookie_needed = self.settings['jsessionid']
 
         # Sessions
+        self._session_kls = session_kls if session_kls else session.Session
         self._sessions = sessioncontainer.SessionContainer()
 
         check_interval = self.settings['session_check_interval'] * 1000
@@ -155,7 +157,7 @@ class SockJSRouter(object):
             need it.
         """
         # TODO: Possible optimization here for settings.get
-        s = session.Session(self._connection,
+        s = self._session_kls(self._connection,
                             self,
                             session_id,
                             self.settings.get('disconnect_delay')
