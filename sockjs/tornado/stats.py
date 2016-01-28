@@ -92,7 +92,7 @@ class StatsCollector(object):
             packets_recv_ps=self.pack_recv_ps.last_average
             )
 
-        for k, v in self.sess_transports.iteritems():
+        for k, v in self.sess_transports.items():
             data['transp_' + k] = v
 
         return data
