@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """
-    sockjs.tornado.conn
-    ~~~~~~~~~~~~~~~~~~~
+sockjs.tornado.conn.
 
-    SockJS connection interface
+~~~~~~~~~~~~~~~~~~~~
+
+SockJS connection interface
 """
 
 
 class SockJSConnection(object):
+    """Sockjs connection."""
+
     def __init__(self, session):
         """Connection constructor.
 
@@ -18,7 +21,7 @@ class SockJSConnection(object):
 
     # Public API
     def on_open(self, request):
-        """Default on_open() handler.
+        """On open event handler.
 
         Override when you need to do some initialization or request validation.
         If you return False, connection will be rejected.
@@ -32,18 +35,22 @@ class SockJSConnection(object):
         pass
 
     def on_message(self, message):
-        """Default on_message handler. Must be overridden in your application
+        """Default on_message handler.
+
+        Must be overridden in your application.
         """
         raise NotImplementedError()
 
     def on_heartbeat(self):
-        """Default on_heartbeat handler
-        """
+        """Default on_heartbeat handler."""
         pass
 
     def on_close(self):
-        """Default on_close handler.
-        """
+        """Default on_close handler."""
+        pass
+
+    def on_promote(self):
+        """Promote action callback."""
         pass
 
     def send(self, message, binary=False):
@@ -57,6 +64,7 @@ class SockJSConnection(object):
 
     def broadcast(self, clients, message):
         """Broadcast message to the one or more clients.
+
         Use this method if you want to send same message to lots of clients, as
         it contains several optimizations and will work fast than just having loop
         in your code.
@@ -69,9 +77,10 @@ class SockJSConnection(object):
         self.session.broadcast(clients, message)
 
     def close(self):
+        """Close session."""
         self.session.close()
 
     @property
     def is_closed(self):
-        """Check if connection was closed"""
+        """Check if connection was closed."""
         return self.session.is_closed

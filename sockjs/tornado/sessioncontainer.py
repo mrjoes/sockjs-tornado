@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-    sockjs.tornado.sessioncontainer
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+sockjs.tornado.sessioncontainer.
 
-    Simple heapq-based session implementation with sliding expiration window
-    support.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Simple heapq-based session implementation with sliding expiration window
+support.
 """
 
 from heapq import heappush, heappop
@@ -14,7 +15,7 @@ from random import random
 
 
 def _random_key():
-    """Return random session key"""
+    """Return random session key."""
     i = md5()
     i.update('%s%s' % (random(), time()))
     return i.hexdigest()
@@ -22,6 +23,7 @@ def _random_key():
 
 class SessionMixin(object):
     """Represents one session object stored in the session container.
+
     Derive from this object to store additional data.
     """
 
@@ -42,15 +44,19 @@ class SessionMixin(object):
             self.expiry_date = time() + self.expiry
 
     def is_alive(self):
-        """Check if session is still alive"""
+        """Check if session is still alive."""
         return self.expiry_date > time()
 
-    def promote(self):
-        """Mark object as alive, so it won't be collected during next
-        run of the garbage collector.
+    def promote(self, callback=None):
+        """Mark object as alive.
+
+        so it won't be collected during next run of the garbage collector.
         """
         if self.expiry is not None:
             self.promoted = time() + self.expiry
+
+        if callback:
+            callback()
 
     def on_delete(self, forced):
         """Triggered when object was expired or deleted."""
@@ -58,8 +64,8 @@ class SessionMixin(object):
 
     def __lt__(self, other):
         return self.expiry_date < other.expiry_date
-    
-    __cmp__ =  __lt__
+
+    __cmp__ = __lt__
 
     def __repr__(self):
         return '%f %s %d' % (getattr(self, 'expiry_date', -1),
@@ -75,6 +81,7 @@ class SessionContainer(object):
     will be huge and will be huge performance hit, as Tornado will have to
     clean them up all the time.
     """
+
     def __init__(self):
         self._items = dict()
         self._queue = []
@@ -91,7 +98,7 @@ class SessionContainer(object):
             heappush(self._queue, session)
 
     def get(self, session_id):
-        """Return session object or None if it is not available
+        """Return session object or None if it is not availableself.
 
         `session_id`
             Session identifier
@@ -99,7 +106,7 @@ class SessionContainer(object):
         return self._items.get(session_id, None)
 
     def remove(self, session_id):
-        """Remove session object from the container
+        """Remove session object from the container.
 
         `session_id`
             Session identifier
@@ -115,7 +122,7 @@ class SessionContainer(object):
         return False
 
     def expire(self, current_time=None):
-        """Expire any old entries
+        """Expire any old entries.
 
         `current_time`
             Optional time to be used to clean up queue (can be used in unit tests)
@@ -138,16 +145,16 @@ class SessionContainer(object):
             # Pop item from the stack
             top = heappop(self._queue)
 
-            need_reschedule = (top.promoted is not None
-                               and top.promoted > current_time)
+            need_reschedule = (top.promoted is not None and
+                               top.promoted > current_time)
 
             # Give chance to reschedule
             if not need_reschedule:
                 top.promoted = None
                 top.on_delete(False)
 
-                need_reschedule = (top.promoted is not None
-                                   and top.promoted > current_time)
+                need_reschedule = (top.promoted is not None and
+                                   top.promoted > current_time)
 
             # If item is promoted and expiration time somewhere in future
             # just reschedule it
