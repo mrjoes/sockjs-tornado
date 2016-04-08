@@ -322,7 +322,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         """
         super(Session, self).remove_handler(handler)
 
-        self.promote(callback=self.conn_info.on_promote)
+        self.promote(callback=self.conn.on_promote)
         self.stop_heartbeat()
         self.stop_check_heartbeat()
 
