@@ -90,7 +90,11 @@ class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransport
             self.server.get_connection_class(), self.server)
         self.session.set_handler(self)
         self.session.verify_state()
-        self.session.start_heartbeat()
+        try:
+            # Verify state failed, session is closed.
+            self.session.start_heartbeat()
+        except:
+            pass
 
     def on_pong(self, data):
         if hasattr(self.session, "_check_heartbeat_timer"):
