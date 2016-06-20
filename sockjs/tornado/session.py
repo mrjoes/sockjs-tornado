@@ -445,7 +445,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         """
         LOG.debug('recv heartbeat packet from client timeout')
         self.stop_heartbeat()
-        self.handler.abort_connection()
+        self.close()
 
     def on_messages(self, msg_list):
         """Handle incoming messages.
