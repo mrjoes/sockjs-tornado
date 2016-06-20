@@ -63,8 +63,7 @@ class RawSession(session.BaseSession):
 
     def _check_heartbeat(self):
         self.stop_heartbeat()
-        if self.handler:
-            self.handler.close(1100, "Heartbeat timeout")
+        self.close(code=1100, message="Heartbeat timeout")
 
 
 class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMixin):
