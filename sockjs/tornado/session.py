@@ -104,7 +104,8 @@ class BaseSession(object):
 
         if self.conn_info is None:
             self.conn_info = handler.get_conn_info()
-            self.stats.on_sess_opened(self.transport_name)
+            if self.stats:
+                self.stats.on_sess_opened(self.transport_name)
 
         return True
 
@@ -148,7 +149,8 @@ class BaseSession(object):
                 self.close_reason = (code, message)
 
             # Bump stats
-            self.stats.on_sess_closed(self.transport_name)
+            if self.stats:
+                self.stats.on_sess_closed(self.transport_name)
 
             # If we have active handler, notify that session was closed
             if self.handler is not None:
@@ -365,7 +367,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
                 self.server.io_loop.add_callback(self.flush)
                 self._pending_flush = True
 
-        if stats:
+        if stats and self.stats:
             self.stats.on_pack_sent(1)
 
     def flush(self):
@@ -453,7 +455,8 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         `msg_list`
             Message list to process
         """
-        self.stats.on_pack_recv(len(msg_list))
+        if self.stats:
+            self.stats.on_pack_recv(len(msg_list))
 
         for msg in msg_list:
             if self.state == OPEN:

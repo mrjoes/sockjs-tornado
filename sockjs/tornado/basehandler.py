@@ -31,12 +31,14 @@ class BaseHandler(RequestHandler):
     def prepare(self):
         """Increment connection count"""
         self.logged = True
-        self.server.stats.on_conn_opened()
+        if self.server.stats:
+            self.server.stats.on_conn_opened()
 
     def _log_disconnect(self):
         """Decrement connection count"""
         if self.logged:
-            self.server.stats.on_conn_closed()
+            if self.server.stats:
+                self.server.stats.on_conn_closed()
             self.logged = False
 
     def finish(self, chunk=None):
