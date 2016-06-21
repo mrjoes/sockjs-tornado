@@ -46,7 +46,8 @@ DEFAULT_SETTINGS = {
     'verify_ip': True,
     # list of allowed origins for websocket connections
     # or "*" - accept all websocket connections
-    'websocket_allow_origin': "*"
+    'websocket_allow_origin': "*",
+    "enable_stats": False
 }
 
 GLOBAL_HANDLERS = [
@@ -119,7 +120,11 @@ class SockJSRouter(object):
         self._sessions_cleanup.start()
 
         # Stats
-        self.stats = stats.StatsCollector(self.io_loop)
+        enable_stats = self.settings["enable_stats"]
+        if enable_stats:
+            self.stats = stats.StatsCollector(self.io_loop)
+        else:
+            self.stats = None
 
         # Initialize URLs
         base = prefix + r'/[^/.]+/(?P<session_id>[^/.]+)'
@@ -213,4 +218,5 @@ class SockJSRouter(object):
 
                 count += 1
 
-        self.stats.on_pack_sent(count)
+        if self.stats:
+            self.stats.on_pack_sent(count)
