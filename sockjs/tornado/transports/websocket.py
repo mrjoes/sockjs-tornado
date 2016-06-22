@@ -37,6 +37,7 @@ class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMix
 
         if not self.session.set_handler(self):
             self.close()
+            self.session = None
             return
 
         self.session.verify_state()
@@ -65,10 +66,7 @@ class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMix
             LOG.exception('WebSocket')
 
             # Close session on exception
-            #self.session.close()
-
-            # Close running connection
-            self.abort_connection()
+            self.session_closed()
 
     def on_close(self):
         # Close session if websocket connection was closed
