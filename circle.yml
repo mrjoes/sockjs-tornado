@@ -1,0 +1,18 @@
+machine:
+  python: 
+    version: 2.7.10
+
+test:
+  override:
+    - 'true'
+
+deployment:
+  gh_tag:
+    tag: /^([0-9]+)(\.[0-9]+)*$/
+    owner: Meiqia
+    commands:
+      - pip install twine s3pypi
+      - python setup.py sdist bdist_wheel
+      # Upload to self hosted PyPI through S3
+      - s3pypi --region "${AWS_REGION}" --bucket "${AWS_S3_BUCKET}"
+
