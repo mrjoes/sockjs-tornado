@@ -29,7 +29,7 @@ class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMix
 
         # Disable nagle
         if self.server.settings['disable_nagle']:
-            self.stream.socket.setsockopt(socket.SOL_TCP, socket.TCP_NODELAY, 1)
+            self.stream.set_nodelay(True)
 
         # Handle session
         self.session = self.server.create_session(session_id, register=False)
