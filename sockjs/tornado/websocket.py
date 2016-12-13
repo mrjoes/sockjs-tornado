@@ -1,3 +1,4 @@
+import tornado
 from tornado import escape, gen, websocket
 
 try:
@@ -7,6 +8,10 @@ except ImportError:
 
 
 class SockJSWebSocketHandler(websocket.WebSocketHandler):
+    if tornado.version_info[0] == 4 and tornado.version_info[1] > 1:
+        def get_compression_options(self):
+            # let tornado use compression when Sec-WebSocket-Extensions:permessage-deflate is provided
+            return {}
 
     SUPPORTED_METHODS = ('GET',)
 
