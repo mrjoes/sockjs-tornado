@@ -26,17 +26,24 @@ class SockJSConnection(object):
         You can also throw Tornado HTTPError to close connection.
 
         `request`
-            ``ConnectionInfo`` object which contains caller IP address, query string
-            parameters and cookies associated with this request (if any).
+            ``ConnectionInfo`` object which contains caller IP address, query
+            string parameters and cookies associated with this request (if any).
         """
         pass
 
     def on_message(self, message):
-        """Default on_message handler. Must be overridden in your application"""
+        """Default on_message handler. Must be overridden in your application
+        """
         raise NotImplementedError()
 
+    def on_heartbeat(self):
+        """Default on_heartbeat handler
+        """
+        pass
+
     def on_close(self):
-        """Default on_close handler."""
+        """Default on_close handler.
+        """
         pass
 
     def send(self, message, binary=False):

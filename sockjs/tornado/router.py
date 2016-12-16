@@ -8,7 +8,14 @@
 
 from tornado import ioloop, version_info
 
-from sockjs.tornado import transports, session, sessioncontainer, static, stats, proto
+from sockjs.tornado import (
+    transports,
+    session,
+    sessioncontainer,
+    static,
+    stats,
+    proto
+)
 
 
 DEFAULT_SETTINGS = {
@@ -19,6 +26,8 @@ DEFAULT_SETTINGS = {
     # Heartbeat time in seconds. Do not change this value unless
     # you absolutely sure that new value will work.
     'heartbeat_delay': 25,
+    # Websocket heartbeat check interval
+    'heartbeat_check_delay': 10,
     # Enabled protocols
     'disabled_transports': [],
     # SockJS location
@@ -38,7 +47,7 @@ DEFAULT_SETTINGS = {
     # list of allowed origins for websocket connections
     # or "*" - accept all websocket connections
     'websocket_allow_origin': "*"
-    }
+}
 
 GLOBAL_HANDLERS = [
     ('xhr_send', transports.XhrSendHandler),
@@ -130,7 +139,7 @@ class SockJSRouter(object):
                 (r'%s/%s$' % (base, k),
                  v,
                  dict(server=self))
-                )
+            )
 
         # Generate static URLs
         self._transport_urls.extend([('%s%s' % (prefix, k), v, dict(server=self))

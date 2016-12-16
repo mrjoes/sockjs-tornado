@@ -230,7 +230,9 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
 
         # Heartbeat related stuff
         self._heartbeat_timer = None
+        self._check_heartbeat_timer = None
         self._heartbeat_interval = self.server.settings['heartbeat_delay'] * 1000
+        self._heartbeat_check_delay = self.server.settings['heartbeat_check_delay']
 
         self._immediate_flush = self.server.settings['immediate_flush']
         self._pending_flush = False
@@ -269,12 +271,10 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
             # If IP address doesn't match - refuse connection
             if handler.request.remote_ip != self.conn_info.ip:
                 LOG.error('Attempted to attach to session %s (%s) from different IP (%s)' % (
-                              self.session_id,
-                              self.conn_info.ip,
-                              handler.request.remote_ip
-                              ))
+                    self.session_id, self.conn_info.ip, handler.request.remote_ip))
 
-                handler.send_pack(proto.disconnect(2010, "Attempted to connect to session from different IP"))
+                handler.send_pack(proto.disconnect(
+                    2010, "Attempted to connect to session from different IP"))
                 return False
 
         if (self.state == CLOSING or self.state == CLOSED) and not self.send_queue:
@@ -310,6 +310,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
 
         self.promote()
         self.stop_heartbeat()
+        self.stop_check_heartbeat()
 
     def send_message(self, msg, stats=True, binary=False):
         """Send or queue outgoing message
@@ -386,6 +387,7 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         self._heartbeat_timer = periodic.Callback(self._heartbeat,
                                                   self._heartbeat_interval,
                                                   self.server.io_loop)
+
         self._heartbeat_timer.start()
 
     def stop_heartbeat(self):
@@ -393,6 +395,12 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
         if self._heartbeat_timer is not None:
             self._heartbeat_timer.stop()
             self._heartbeat_timer = None
+
+    def stop_check_heartbeat(self):
+        """Stop active heartbeat check timer"""
+        if self._check_heartbeat_timer is not None:
+            self.server.io_loop.remove_timeout(self._check_heartbeat_timer)
+            self._check_heartbeat_timer = None
 
     def delay_heartbeat(self):
         """Delay active heartbeat"""
@@ -402,9 +410,30 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
     def _heartbeat(self):
         """Heartbeat callback"""
         if self.handler is not None:
-            self.handler.send_pack(proto.HEARTBEAT)
+            name = self.handler.name
+
+            # Origin websocket using ping/pong as heartbeat.
+            if name == "rawwebsocket":
+                self.handler.ping('ping')
+            else:
+                self.handler.send_pack(proto.HEARTBEAT)
+
+            if name == "websocket":
+                self._check_heartbeat_timer = self.server.io_loop.call_later(
+                    self._heartbeat_check_delay,
+                    self._check_heartbeat)
         else:
             self.stop_heartbeat()
+
+    def _check_heartbeat(self):
+        """Check heartbeat.
+
+        If server doesn't recv heartbeat packet from client
+        in the interval of two heartbeat, it will close this session.
+        """
+        LOG.debug('recv heartbeat packet from client timeout')
+        self.stop_heartbeat()
+        self.handler.abort_connection()
 
     def on_messages(self, msg_list):
         """Handle incoming messages
@@ -416,4 +445,12 @@ class Session(BaseSession, sessioncontainer.SessionMixin):
 
         for msg in msg_list:
             if self.state == OPEN:
-                self.conn.on_message(msg)
+                if msg == proto.HEARTBEAT:
+                    # When recv `heartbeat` from client,
+                    # remove the `_check_heartbeat_timer` from ioloop.
+                    if self._check_heartbeat_timer is not None:
+                        self.server.io_loop.remove_timeout(
+                            self._check_heartbeat_timer)
+                    self.conn.on_heartbeat()
+                else:
+                    self.conn.on_message(msg)
