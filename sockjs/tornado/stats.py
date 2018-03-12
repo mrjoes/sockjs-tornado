@@ -67,8 +67,7 @@ class StatsCollector(object):
         self.pack_recv_ps = MovingAverage()
 
         self._callback = ioloop.PeriodicCallback(self._update,
-                                                 1000,
-                                                 io_loop)
+                                                 1000)
         self._callback.start()
 
     def _update(self):
