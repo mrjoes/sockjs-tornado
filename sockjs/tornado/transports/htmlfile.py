@@ -11,6 +11,13 @@ from tornado.web import asynchronous
 from sockjs.tornado import proto
 from sockjs.tornado.transports import streamingbase
 
+try:
+    # Python 3.4+
+    from html import escape
+except:
+    from cgi import escape
+
+
 # HTMLFILE template
 HTMLFILE_HEAD = r'''
 <!doctype html>
@@ -53,7 +60,7 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             return
 
         # TODO: Fix me - use parameter
-        self.write(HTMLFILE_HEAD % callback)
+        self.write(HTMLFILE_HEAD % escape(callback))
         self.flush()
 
         # Now try to attach to session
