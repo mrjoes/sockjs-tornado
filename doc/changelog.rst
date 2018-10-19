@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+1.0.6
+-----
+
+ - XSS security fix for the HTMLFILE transport
+
 1.0.2
 ~~~~~
  - Tornado 5.x compatibility fix
