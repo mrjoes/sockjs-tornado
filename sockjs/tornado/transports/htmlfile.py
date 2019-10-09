@@ -6,7 +6,7 @@
     HtmlFile transport implementation.
 """
 
-from tornado.web import asynchronous
+from sockjs.tornado.util import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import streamingbase

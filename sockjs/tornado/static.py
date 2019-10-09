@@ -11,7 +11,7 @@ import hashlib
 import random
 import sys
 
-from tornado.web import asynchronous
+from sockjs.tornado.util import asynchronous
 
 from sockjs.tornado.basehandler import BaseHandler, PreflightHandler
 from sockjs.tornado.proto import json_encode

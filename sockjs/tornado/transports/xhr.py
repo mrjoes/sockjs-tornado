@@ -7,7 +7,7 @@
 """
 import logging
 
-from tornado.web import asynchronous
+from sockjs.tornado.util import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase

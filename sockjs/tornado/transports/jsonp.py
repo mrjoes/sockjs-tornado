@@ -7,7 +7,7 @@
 """
 import logging
 
-from tornado.web import asynchronous
+from sockjs.tornado.util import asynchronous
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
@@ -62,7 +62,11 @@ class JSONPTransport(pollingbase.PollingTransportBase):
             self.set_header('Etag', 'dummy')
 
             self.write(msg)
-            self.flush(callback=self.send_complete)
+            try:
+                self.flush(callback=self.send_complete)
+            except:
+                ft = self.flush()
+                ft.add_done_callback(self.send_complete)
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.

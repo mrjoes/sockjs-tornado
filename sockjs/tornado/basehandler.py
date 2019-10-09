@@ -9,8 +9,9 @@
 import datetime
 import socket
 import logging
+from tornado.web import RequestHandler
+from sockjs.tornado.util import asynchronous
 
-from tornado.web import asynchronous, RequestHandler
 
 CACHE_TIME = 31536000
 
