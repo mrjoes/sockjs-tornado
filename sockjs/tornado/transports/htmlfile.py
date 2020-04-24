@@ -6,16 +6,20 @@
     HtmlFile transport implementation.
 """
 
-from sockjs.tornado.util import asynchronous
+import re
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import streamingbase
+from sockjs.tornado.util import asynchronous
 
 try:
     # Python 3.4+
     from html import escape
 except:
     from cgi import escape
+
+
+RE = re.compile('[\W_]+')
 
 
 # HTMLFILE template
@@ -60,7 +64,7 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             return
 
         # TODO: Fix me - use parameter
-        self.write(HTMLFILE_HEAD % escape(callback))
+        self.write(HTMLFILE_HEAD % escape(RE.sub('', callback)))
         self.flush()
 
         # Now try to attach to session
@@ -85,7 +89,7 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             self.notify_sent(len(message))
 
             self.write(msg)
-            self.flush(callback=self.send_complete)
+            self.flush().add_done_callback(self.send_complete)
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.

@@ -62,11 +62,7 @@ class JSONPTransport(pollingbase.PollingTransportBase):
             self.set_header('Etag', 'dummy')
 
             self.write(msg)
-            try:
-                self.flush(callback=self.send_complete)
-            except:
-                ft = self.flush()
-                ft.add_done_callback(self.send_complete)
+            self.flush().add_done_callback(self.send_complete)
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.

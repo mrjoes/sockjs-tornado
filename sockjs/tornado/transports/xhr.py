@@ -49,7 +49,7 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
             self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
             self.set_header('Content-Length', len(message) + 1)
             self.write(message + '\n')
-            self.flush(callback=self.send_complete)
+            self.flush().add_done_callback(self.send_complete)
         except IOError:
             # If connection dropped, make sure we close offending session instead
             # of propagating error all way up.
