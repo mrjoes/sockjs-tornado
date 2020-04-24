@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+1.0.7
+-----
+
+ - Tornado 6.x compatibility fix. Minimum supported Tornado version is 4.x now.
+ - XSS fix
+
 1.0.6
 -----
 

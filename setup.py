@@ -1,19 +1,11 @@
 #!/usr/bin/env python
 import os
-
-import distutils.core
 import sys
 
 try:
-    import setuptools
+    from setuptools import setup
 except ImportError:
-    pass
-
-try:
-    license = open('LICENSE').read()
-except:
-    license = None
-
+    from distutils.core import setup
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -26,7 +18,7 @@ def desc():
     except IOError:
         return info
 
-distutils.core.setup(
+setup(
     name='sockjs-tornado',
     version='1.0.7',
     author='Serge S. Koval',
@@ -35,9 +27,10 @@ distutils.core.setup(
     namespace_packages=['sockjs'],
     scripts=[],
     url='http://github.com/mrjoes/sockjs-tornado/',
-    license=license,
+    license='MIT License',
     description='SockJS python server implementation on top of Tornado framework',
     long_description=desc(),
+    long_description_content_type='text/x-rst',
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',

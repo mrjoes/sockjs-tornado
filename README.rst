@@ -5,17 +5,16 @@ SockJS-tornado is a Python server side counterpart of `SockJS-client browser lib
 running on top of `Tornado <http://tornadoweb.org>`_ framework.
 
 Simplified echo SockJS server could look more or less like::
-
     from tornado import web, ioloop
     from sockjs.tornado import SockJSRouter, SockJSConnection
-
+    
     class EchoConnection(SockJSConnection):
         def on_message(self, msg):
             self.send(msg)
-
+        
     if __name__ == '__main__':
         EchoRouter = SockJSRouter(EchoConnection, '/echo')
-
+        
         app = web.Application(EchoRouter.urls)
         app.listen(9999)
         ioloop.IOLoop.instance().start()
@@ -29,12 +28,12 @@ SockJS-tornado API
 
 SockJS provides slightly different API than ``tornado.websocket``. Main differences are:
 
-1.  Depending on transport, actual client connection might or might not be there. So, there is no _self.request_ and
+1. Depending on transport, actual client connection might or might not be there. So, there is no _self.request_ and
     other ``tornado.web.RequestHandler`` properties.
-2.  Changed ``open`` callback name to ``on_open`` to be more consistent with other callbacks.
-3.  Instead of ``write_message``, all messages are sent using ``send`` method. Just in case, ``send`` in ``tornado.web.RequestHandler``
+2. Changed ``open`` callback name to ``on_open`` to be more consistent with other callbacks.
+3. Instead of ``write_message``, all messages are sent using ``send`` method. Just in case, ``send`` in ``tornado.web.RequestHandler``
     sends raw data over the connection, without encoding it.
-4.  There is handy ``broadcast`` function, which accepts list (or iterator) of clients and message to send.
+4. There is handy ``broadcast`` function, which accepts list (or iterator) of clients and message to send.
 
 Settings
 --------
