@@ -6,16 +6,13 @@
     Xhr-Streaming transport implementation
 """
 
-from sockjs.tornado.util import asynchronous
-
 from sockjs.tornado.transports import streamingbase
 
 
 class XhrStreamingTransport(streamingbase.StreamingTransportBase):
     name = 'xhr_streaming'
 
-    @asynchronous
-    def post(self, session_id):
+    async def post(self, session_id):
         # Handle cookie
         self.preflight()
         self.handle_session_cookie()
