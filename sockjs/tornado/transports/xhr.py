@@ -7,8 +7,6 @@
 """
 import logging
 
-from sockjs.tornado.util import asynchronous
-
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
 from sockjs.tornado.util import bytes_to_str
@@ -19,12 +17,11 @@ class XhrPollingTransport(pollingbase.PollingTransportBase):
     """xhr-polling transport implementation"""
     name = 'xhr'
 
-    @asynchronous
-    def post(self, session_id):
+    async def post(self, session_id):
         # Start response
         self.preflight()
         self.handle_session_cookie()
-        self.disable_cache()
+        # self.disable_cache()
 
         # Get or create session without starting heartbeat
         if not self._attach_session(session_id, False):
@@ -60,7 +57,7 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
     def post(self, session_id):
         self.preflight()
         self.handle_session_cookie()
-        self.disable_cache()
+        # self.disable_cache()
 
         session = self._get_session(session_id)
 
@@ -93,3 +90,4 @@ class XhrSendHandler(pollingbase.PollingTransportBase):
 
         self.set_status(204)
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
+        self.finish()

@@ -7,8 +7,6 @@
 """
 import logging
 
-from sockjs.tornado.util import asynchronous
-
 from sockjs.tornado import proto
 from sockjs.tornado.transports import pollingbase
 from sockjs.tornado.util import bytes_to_str, unquote_plus
@@ -18,8 +16,7 @@ LOG = logging.getLogger("tornado.general")
 class JSONPTransport(pollingbase.PollingTransportBase):
     name = 'jsonp'
 
-    @asynchronous
-    def get(self, session_id):
+    async def get(self, session_id):
         # Start response
         self.handle_session_cookie()
         self.disable_cache()
@@ -125,3 +122,4 @@ class JSONPSendHandler(pollingbase.PollingTransportBase):
         self.write('ok')
         self.set_header('Content-Type', 'text/plain; charset=UTF-8')
         self.set_status(200)
+        self.finish()

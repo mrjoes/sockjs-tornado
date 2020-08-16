@@ -63,6 +63,6 @@ if __name__ == "__main__":
     )
     app.listen(8080)
 
-    print 'Listening on 0.0.0.0:8080'
+    print('Listening on 0.0.0.0:8080')
 
     tornado.ioloop.IOLoop.instance().start()

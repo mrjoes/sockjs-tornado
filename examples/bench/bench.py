@@ -32,8 +32,8 @@ class EchoConnection(SockJSConnection):
     @classmethod
     def dump_stats(cls):
         # Print current client count
-        print 'Clients: %d' % (len(cls.clients))
-        print 'Weak Clients: %d' % (len(cls.weak_clients))
+        print('Clients: %d' % (len(cls.clients)))
+        print('Weak Clients: %d' % (len(cls.weak_clients)))
 
 if __name__ == '__main__':
     options = dict()

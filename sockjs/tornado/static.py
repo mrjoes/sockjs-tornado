@@ -11,8 +11,6 @@ import hashlib
 import random
 import sys
 
-from sockjs.tornado.util import asynchronous
-
 from sockjs.tornado.basehandler import BaseHandler, PreflightHandler
 from sockjs.tornado.proto import json_encode
 from sockjs.tornado.util import MAXSIZE, str_to_bytes
@@ -83,8 +81,7 @@ class ChunkingTestHandler(PreflightHandler):
         self.step = 0
         self.io_loop = server.io_loop
 
-    @asynchronous
-    def post(self):
+    async def post(self):
         self.preflight()
         self.set_header('Content-Type', 'application/javascript; charset=UTF-8')
 

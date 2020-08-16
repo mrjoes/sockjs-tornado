@@ -14,7 +14,7 @@ class PollingTransportBase(basehandler.PreflightHandler, base.BaseTransportMixin
     """Polling transport handler base class"""
     def initialize(self, server):
         super(PollingTransportBase, self).initialize(server)
-
+        self._auto_finish = False
         self.session = None
         self.active = True
 

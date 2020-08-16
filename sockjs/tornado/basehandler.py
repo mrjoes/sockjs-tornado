@@ -10,7 +10,6 @@ import datetime
 import socket
 import logging
 from tornado.web import RequestHandler
-from sockjs.tornado.util import asynchronous
 
 
 CACHE_TIME = 31536000
@@ -95,8 +94,7 @@ class BaseHandler(RequestHandler):
 class PreflightHandler(BaseHandler):
     """CORS preflight handler"""
 
-    @asynchronous
-    def options(self, *args, **kwargs):
+    async def options(self, *args, **kwargs):
         """XHR cross-domain OPTIONS handler"""
         self.enable_cache()
         self.handle_session_cookie()
