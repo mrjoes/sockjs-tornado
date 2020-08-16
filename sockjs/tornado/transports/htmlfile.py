@@ -10,13 +10,7 @@ import re
 
 from sockjs.tornado import proto
 from sockjs.tornado.transports import streamingbase
-from sockjs.tornado.util import asynchronous
-
-try:
-    # Python 3.4+
-    from html import escape
-except:
-    from cgi import escape
+from html import escape
 
 
 RE = re.compile('[\W_]+')
@@ -47,8 +41,7 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
     def initialize(self, server):
         super(HtmlFileTransport, self).initialize(server)
 
-    @asynchronous
-    def get(self, session_id):
+    async def get(self, session_id):
         # Start response
         self.preflight()
         self.handle_session_cookie()

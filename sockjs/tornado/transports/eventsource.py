@@ -6,16 +6,13 @@
     EventSource transport implementation.
 """
 
-from sockjs.tornado.util import asynchronous
-
 from sockjs.tornado.transports import streamingbase
 
 
 class EventSourceTransport(streamingbase.StreamingTransportBase):
     name = 'eventsource'
 
-    @asynchronous
-    def get(self, session_id):
+    async def get(self, session_id):
         # Start response
         self.preflight()
         self.handle_session_cookie()
