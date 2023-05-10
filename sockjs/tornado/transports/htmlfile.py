@@ -20,6 +20,7 @@ except:
 
 
 RE = re.compile('[\W_]+')
+CALLBACK_RE = re.compile('[^a-zA-Z0-9-_.]')
 
 
 # HTMLFILE template
@@ -59,6 +60,12 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
         callback = self.get_argument('c', None)
         if not callback:
             self.write('"callback" parameter required')
+            self.set_status(500)
+            self.finish()
+            return
+
+        if CALLBACK_RE.search(callback):
+             self.write('invalid "callback" parameter')
             self.set_status(500)
             self.finish()
             return
