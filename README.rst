@@ -5,6 +5,7 @@ SockJS-tornado is a Python server side counterpart of `SockJS-client browser lib
 running on top of `Tornado <http://tornadoweb.org>`_ framework.
 
 Simplified echo SockJS server could look more or less like::
+
     from tornado import web, ioloop
     from sockjs.tornado import SockJSRouter, SockJSConnection
     
