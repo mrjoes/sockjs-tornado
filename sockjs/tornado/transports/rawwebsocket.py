@@ -83,7 +83,7 @@ class RawWebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransport
 
     def session_closed(self):
         try:
-            self.close()
+            self.close(*self.session.get_close_reason())
         except IOError:
             pass
         finally:
