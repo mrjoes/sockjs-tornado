@@ -87,7 +87,7 @@ class WebSocketTransport(websocket.SockJSWebSocketHandler, base.BaseTransportMix
         # Send message
         try:
             self.write_message(message, binary)
-        except IOError:
+        except (IOError, websocket.WebSocketClosedError):
             self.server.io_loop.add_callback(self.on_close)
 
     def session_closed(self):
