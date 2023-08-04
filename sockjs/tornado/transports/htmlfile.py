@@ -65,7 +65,7 @@ class HtmlFileTransport(streamingbase.StreamingTransportBase):
             return
 
         if CALLBACK_RE.search(callback):
-             self.write('invalid "callback" parameter')
+            self.write('invalid "callback" parameter')
             self.set_status(500)
             self.finish()
             return
